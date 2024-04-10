@@ -6,37 +6,6 @@ import (
 	"strconv"
 )
 
-type Statement struct {
-	Kind StatementKind `json:"kind"`
-	Body interface{}   `json:"body"`
-}
-
-type LetDeclaration struct {
-	Id   string    `json:"id"`
-	Init Statement `json:"init"`
-}
-type FunCall struct {
-	Caller string      `json:"caller"`
-	Args   []Statement `json:"args"`
-}
-type BinaryExpr struct {
-	Left     Statement `json:"left"`
-	Right    Statement `json:"right"`
-	Operator Token     `json:"operator"`
-}
-type FunctionDeclaration struct {
-	Id     string
-	Params []Statement
-	Body   []Statement
-}
-type FunParam struct {
-	Name string
-	Type Tokenized
-}
-type Program struct {
-	Type       StatementKind `json:"type,string"`
-	Statements []Statement   `json:"statements"`
-}
 type AST struct {
 	Tokens       []Tokenized
 	CurrentToken Tokenized
@@ -48,26 +17,41 @@ func NewAST(tokens []Tokenized) *AST {
 	return &AST{
 		Tokens:       tokens,
 		CurrentToken: tokens[0],
-		CurrentIndex: 0,
 		IsEnd:        false,
+		CurrentIndex: 0,
 	}
+}
+
+type Parameter struct {
+	Key   string    `json:"key"`
+	Value Statement `json:"value"`
+}
+type OpenTag struct {
+	Name   string      `json:"name"`
+	Params []Parameter `json:"params"`
+}
+type CloseTag struct {
+	Name string `json:"name"`
+}
+type Statement struct {
+	Kind StatementKind `json:"kind"`
+	Body interface{}   `json:"body"`
+}
+
+type Program struct {
+	Statements []Statement `json:"statements"`
+}
+
+func (ast *AST) expect(token Token, message string) {
+	ast.next()
+	if ast.CurrentToken.Token == token {
+		return
+	}
+	ast.threwError(fmt.Sprintf("Expect %v in %v", token, message))
 }
 func (ast *AST) threwError(message string) {
 	fmt.Println(fmt.Errorf(fmt.Sprintf("[ParserError] %v", message)))
 	os.Exit(1)
-}
-func (ast *AST) expect(kind StatementKind, token Token) {
-	if token != ast.CurrentToken.Token {
-		ast.threwError(fmt.Sprintf("[%v] expect '%v' got '%v' at %v:%v", kind, token, ast.CurrentToken.Token, ast.CurrentToken.Pos.Line, ast.CurrentToken.Pos.Column))
-	}
-}
-func (ast *AST) expectOneOf(kind StatementKind, token ...Token) {
-	for _, t := range token {
-		if ast.CurrentToken.Token == t {
-			return
-		}
-	}
-	ast.threwError(fmt.Sprintf("[%v] expect '%v' got '%v' at %v:%v", kind, token, ast.CurrentToken.Token, ast.CurrentToken.Pos.Line, ast.CurrentToken.Pos.Column))
 }
 func (ast *AST) next() {
 	ast.CurrentIndex++
@@ -80,92 +64,94 @@ func (ast *AST) next() {
 func (ast *AST) checkForward() Tokenized {
 	return ast.Tokens[ast.CurrentIndex+1]
 }
-
 func (ast *AST) ProduceAST() Program {
-	program := Program{Type: PROGRAM}
-	for !ast.IsEnd {
-		stmt := ast.Parse()
-		program.Statements = append(program.Statements, stmt)
-		ast.next()
-	}
-	return program
-}
-func (ast *AST) Parse() Statement {
-	switch ast.CurrentToken.Token {
-	case LET:
-		return ast.ParseLet()
-	case INT:
-		return ast.ParseExpr()
-	case IDENT:
-		return ast.ParsePrimaryExpr()
-	case FUN:
-		return ast.ParseFun()
-	case EOF:
-		ast.IsEnd = true
-	default:
-		ast.threwError(fmt.Sprintf("Unsupported expiration '%+v'", ast.CurrentToken))
-	}
-	return Statement{Kind: K_END_OF_FILE}
-}
-func (ast *AST) ParseLet() Statement {
-	stmt := Statement{Kind: StatementKind(K_LET_DECLARATION)}
-	decl := LetDeclaration{}
-	ast.next()
-	ast.expect(K_LET_DECLARATION, IDENT)
-	decl.Id = ast.CurrentToken.Literal
-	ast.next()
-	ast.expect(K_LET_DECLARATION, ASSIGN)
-	ast.next()
-	decl.Init = ast.ParseExpr()
-	stmt.Body = decl
-	return stmt
-}
-func (ast *AST) ParseExpr() Statement {
-	stmt := ast.ParseBinaryExpr()
-	return stmt
-}
-
-func (ast *AST) ParseBinaryExpr() Statement {
-	left := ast.ParsePrimaryExpr()
-	if !isOperator(ast.checkForward().Token) {
-		return left
-	}
+	program := Program{}
 	for {
-		if !isOperator(ast.checkForward().Token) {
-			return left
-		} else {
-			ast.next()
+		println(ast.CurrentToken.Token)
+		if ast.IsEnd {
+			return program
 		}
-		operator := ast.CurrentToken
+		program.Statements = append(program.Statements, ast.ParseExpression())
 		ast.next()
-		right := ast.ParsePrimaryExpr()
-		left = Statement{
-			Kind: K_BINARY_EXPR,
-			Body: BinaryExpr{
-				Left:     left,
-				Operator: operator.Token,
-				Right:    right,
-			},
-		}
-
 	}
 }
 
-func (ast *AST) ParsePrimaryExpr() Statement {
+func (ast *AST) ParseExpression() Statement {
+	switch ast.CurrentToken.Token {
+	case OPEN_TAG:
+		return ast.ParseOpenTag()
+	case CLOSE_OPEN_TAG:
+		return ast.ParseCloseTag()
+	}
+	return Statement{Kind: EOF}
+}
+
+func (ast *AST) ParseOpenTag() Statement {
+	statement := Statement{Kind: K_OPEN_TAG}
+	ast.expect(IDENT, "Tag name in OpenTag")
+	openTag := OpenTag{}
+	openTag.Name = ast.CurrentToken.Literal
+	openTag.Params = ast.ParseParameter()
+	statement.Body = openTag
+	return statement
+}
+func (ast *AST) ParseCloseTag() Statement {
+	statement := Statement{Kind: K_CLOSE_TAG}
+	ast.expect(IDENT, "Tag name in CloseTag")
+	closeTag := CloseTag{}
+	closeTag.Name = ast.CurrentToken.Literal
+	ast.expect(CLOSE_TAG, "CloseTag")
+	statement.Body = closeTag
+	return statement
+}
+
+func (ast *AST) ParseParameter() []Parameter {
+	params := []Parameter{}
+	for {
+		println("ParseParameter ", ast.CurrentToken.Literal)
+
+		if ast.CurrentToken.Token == CLOSE_TAG {
+			return params
+		}
+		if ast.CurrentToken.Token == CLOSE_OPEN_TAG {
+			return []Parameter{}
+		}
+		if ast.checkForward().Token == CLOSE_TAG {
+			ast.next()
+			return params
+		}
+		ast.expect(IDENT, "for parameter")
+		param := Parameter{}
+		param.Key = ast.CurrentToken.Literal
+		ast.expect(EQUAL, "after key")
+		param.Value = ast.ParseParameterValue()
+		if ast.CurrentToken.Token == RBRACE {
+			params = append(params, param)
+		}
+	}
+}
+func (ast *AST) ParseParameterValue() Statement {
+	statement := Statement{Kind: K_PARAMETER_VALUE}
+	ast.expect(LBRACE, "after '='")
+	if ast.CurrentToken.Token == LBRACE {
+		ast.next()
+		statement.Body = ast.ParsePrimaryExpression()
+	}
+	return statement
+
+}
+
+func (ast *AST) ParsePrimaryExpression() Statement {
 	stmt := Statement{}
 	token := ast.CurrentToken.Token
 	switch token {
 	case IDENT:
-		if ast.checkForward().Token == LPAREN {
-			stmt.Kind = K_FUN_CALL
-			stmt.Body = ast.ParseFunCall(ast.CurrentToken)
-			return stmt
-		}
 		stmt.Kind = K_IDENTIFIER
 		stmt.Body = ast.CurrentToken.Literal
+		ast.next()
 		return stmt
 	case INT:
-		stmt.Kind = K_NUMERIC_LITERAL
+		stmt.Kind = K_NUMBER
 		n, err := strconv.Atoi(ast.CurrentToken.Literal)
 		if err != nil {
 			panic(err)
@@ -175,91 +161,10 @@ func (ast *AST) ParsePrimaryExpr() Statement {
 	case STRING:
 		stmt.Kind = K_STRING
 		stmt.Body = ast.CurrentToken.Literal
+		ast.next()
 	default:
 		ast.threwError(fmt.Sprintf("Invalid expression '%v' expect 'identifier' or 'number' at %v:%v", token, ast.CurrentToken.Pos.Line, ast.CurrentToken.Pos.Column))
 	}
 
 	return stmt
-}
-func (ast *AST) ParseFun() Statement {
-	stmt := Statement{Kind: K_FUN_DECLARATION}
-	fun := FunctionDeclaration{}
-	ast.next()
-	ast.expect(K_FUN_DECLARATION, IDENT)
-	fun.Id = ast.CurrentToken.Literal
-	ast.next()
-	params := ast.ParseFunParams()
-	fun.Params = params
-	ast.next()
-	fun.Body = ast.ParseBlock()
-	stmt.Body = fun
-	return stmt
-}
-func (ast *AST) ParseFunParams() []Statement {
-	stmts := []Statement{}
-	ast.expect(K_FUN_PARAM, LPAREN)
-	ast.next()
-	if ast.checkForward().Token == RPAREN {
-		ast.next()
-		return stmts
-	}
-	for ast.CurrentToken.Token != RPAREN {
-		currentParam := FunParam{}
-		ast.expect(K_FUN_PARAM, IDENT)
-		currentParam.Name = ast.CurrentToken.Literal
-		ast.next()
-		ast.expect(K_FUN_PARAM, COLON)
-		ast.next()
-		ast.expect(K_FUN_PARAM, IDENT)
-		currentParam.Type = ast.CurrentToken
-		ast.next()
-		stmts = append(stmts, Statement{Kind: K_FUN_PARAM, Body: currentParam})
-		// Skip comma
-		if ast.CurrentToken.Token == COMMA {
-			ast.next()
-		}
-	}
-	return stmts
-}
-func (ast *AST) ParseBlock() []Statement {
-	stmts := []Statement{}
-	ast.expect(K_BLOCK, LBRACE)
-	ast.next()
-	for ast.CurrentToken.Token != RBRACE {
-		stmts = append(stmts, ast.Parse())
-		if ast.CurrentToken.Token == EOF {
-			ast.expect(K_BLOCK, RBRACE)
-		}
-		ast.next()
-	}
-	return stmts
-}
-func (ast *AST) ParseFunCall(caller Tokenized) FunCall {
-	funCall := FunCall{}
-	funCall.Caller = caller.Literal
-	ast.expect(K_FUN_CALL, IDENT)
-	ast.next()
-	args := ast.ParseFunArgs()
-	funCall.Args = args
-	return funCall
-}
-func (ast *AST) ParseFunArgs() []Statement {
-	args := []Statement{}
-	ast.expect(K_FUN_ARGS_LIST, LPAREN)
-	ast.next()
-	for ast.CurrentToken.Token != RPAREN {
-		ast.expectOneOf(K_FUN_ARGS_LIST, IDENT, INT, STRING)
-		currentParam := ast.ParseExpr()
-		args = append(args, currentParam)
-		ast.next()
-		if ast.CurrentToken.Token == RPAREN {
-			return args
-		}
-		ast.expect(K_FUN_ARGS_LIST, COMMA)
-		// Skip comma
-		if ast.CurrentToken.Token == COMMA {
-			ast.next()
-		}
-	}
-	return args
 }

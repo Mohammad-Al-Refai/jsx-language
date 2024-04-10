@@ -10,9 +10,15 @@ import (
 
 type Tokenized struct {
 	Pos     Position
-	Literal string
-	Token   Token `json:"token"`
+	Literal string `json:"literal"`
+	Token   Token  `json:"token"`
 }
+
+// convert iota to string
+func (l Tokenized) MarshalText() ([]byte, error) {
+	return []byte(l.Literal), nil
+}
+
 type Position struct {
 	Line   int
 	Column int
@@ -51,16 +57,27 @@ func (l *Lexer) Lex() (Position, Token, string) {
 		switch r {
 		case '\n':
 			l.resetPosition()
-		case ';':
-			return l.Pos, SEMI, ";"
+		case '<':
+			next, err := l.Reader.Peek(1)
+			if err != nil {
+				if err == io.EOF {
+					panic(err)
+				}
+			}
+			if string(next) == "/" {
+				l.Reader.ReadRune()
+				return l.Pos, CLOSE_OPEN_TAG, "</"
+			} else {
+				return l.Pos, OPEN_TAG, "<"
+			}
+		case '>':
+			return l.Pos, CLOSE_TAG, ">"
 		case '+':
 			return l.Pos, ADD, "+"
 		case '-':
 			return l.Pos, SUB, "-"
 		case '*':
 			return l.Pos, MUL, "*"
-		case '/':
-			return l.Pos, DIV, "/"
 		case '{':
 			return l.Pos, LBRACE, "{"
 		case '}':
@@ -69,23 +86,20 @@ func (l *Lexer) Lex() (Position, Token, string) {
 			return l.Pos, LPAREN, "("
 		case ')':
 			return l.Pos, RPAREN, ")"
-		case ':':
-			return l.Pos, COLON, ":"
 		case ',':
 			return l.Pos, COMMA, ","
 		case '=':
 			next, err := l.Reader.Peek(1)
 			if err != nil {
 				if err == io.EOF {
-					return l.Pos, ASSIGN, "="
+					return l.Pos, EQUAL, "="
 				}
-				panic(err)
 			}
 			if string(next) == "=" {
 				l.Reader.ReadRune()
 				return l.Pos, EQUAL_EQUAL, "=="
 			} else {
-				return l.Pos, ASSIGN, "="
+				return l.Pos, EQUAL, "="
 			}
 		case '#':
 			// ignore anything after # until detect a new line

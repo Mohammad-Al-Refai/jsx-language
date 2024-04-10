@@ -11,9 +11,12 @@ const (
 	ILLEGAL
 	IDENT
 	INT
-	SEMI  // ;
-	COLON //;
 	COMMA //,
+	GREATER_THAN
+	SMALLER_THAN
+	CLOSE_TAG
+	OPEN_TAG
+	CLOSE_OPEN_TAG
 
 	// Infix ops
 	ADD // +
@@ -27,22 +30,24 @@ const (
 
 	RPAREN  // )
 	RBRACE  // }
-	ASSIGN  // =
 	COMMENT // #
 	OPERATOR
 	STRING // 'string'
 
 	//keywords
-	IF   // if
-	ELSE // else
-	LET  // let
-	FUN  // fun
-
+	IF
+	LET
+	FUNCTION
+	PRINT
+	RETURN
+	FOR
 	// operators
 	EQUAL_EQUAL // ==
+	EQUAL       // ==
+
 )
 
-var keywords = map[string]Token{"let": LET, "if": IF, "else": ELSE, "fun": FUN}
+var keywords = map[string]Token{"Let": LET, "If": IF, "Function": FUNCTION, "Print": PRINT, "Return": RETURN, "For": FOR, "greater": GREATER_THAN, "smaller": SMALLER_THAN}
 var operators = map[Token]string{ADD: "+", SUB: "-", MUL: "*", DIV: "/"}
 
 var tokens = []string{
@@ -50,8 +55,6 @@ var tokens = []string{
 	ILLEGAL: "ILLEGAL",
 	IDENT:   "IDENT",
 	INT:     "INT",
-	SEMI:    ";",
-	COLON:   ":",
 	COMMA:   ",",
 	LBRACE:  "{",
 	RBRACE:  "}",
@@ -59,20 +62,22 @@ var tokens = []string{
 	RPAREN:  ")",
 	STRING:  "STRING",
 	// Infix ops
-	ADD:    "+",
-	SUB:    "-",
-	MUL:    "*",
-	DIV:    "/",
-	ASSIGN: "=",
-
-	EQUAL_EQUAL: "==",
-
-	IF:   "if",
-	ELSE: "else",
-	LET:  "let",
-	FUN:  "fun",
-
-	COMMENT: "#",
+	ADD:            "+",
+	SUB:            "-",
+	MUL:            "*",
+	DIV:            "/",
+	EQUAL_EQUAL:    "==",
+	EQUAL:          "=",
+	IF:             "If",
+	LET:            "Let",
+	FUNCTION:       "Function",
+	FOR:            "For",
+	RETURN:         "Return",
+	COMMENT:        "#",
+	GREATER_THAN:   "greater",
+	SMALLER_THAN:   "smaller",
+	CLOSE_OPEN_TAG: ">",
+	CLOSE_TAG:      "/>",
 }
 
 func (t Token) String() string {

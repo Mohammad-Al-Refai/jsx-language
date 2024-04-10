@@ -1,0 +1,42 @@
+{
+    "statements": [
+        {
+            "kind": "OpenTag",
+            "body": {
+                "name": "Program",
+                "params": [
+                    {
+                        "key": "id",
+                        "value": {
+                            "kind": "ParameterValue",
+                            "body": {
+                                "kind": "Identifier",
+                                "body": "x"
+                            }
+                        }
+                    },
+                    {
+                        "key": "name",
+                        "value": {
+                            "kind": "ParameterValue",
+                            "body": {
+                                "kind": "String",
+                                "body": "mohammad"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "kind": "CloseTag",
+            "body": {
+                "name": "Program"
+            }
+        },
+        {
+            "kind": "EOF",
+            "body": null
+        }
+    ]
+}
