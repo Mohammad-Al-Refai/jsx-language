@@ -1,0 +1,51 @@
+{
+  "statements": [
+    {
+      "kind": "OpenTag",
+      "body": {
+        "name": "App",
+        "params": [],
+        "children": [
+          {
+            "kind": "CloseTag",
+            "body": {
+              "name": "Let",
+              "params": [
+                {
+                  "key": "id",
+                  "value": {
+                    "kind": "ParameterValue",
+                    "body": { "kind": "String", "body": "Name" }
+                  }
+                },
+                {
+                  "key": "value",
+                  "value": {
+                    "kind": "ParameterValue",
+                    "body": { "kind": "String", "body": "Mohammad+1" }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "kind": "CloseTag",
+            "body": {
+              "name": "Print",
+              "params": [
+                {
+                  "key": "value",
+                  "value": {
+                    "kind": "ParameterValue",
+                    "body": { "kind": "Identifier", "body": "Name" }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    { "kind": "EOF", "body": null }
+  ]
+}
