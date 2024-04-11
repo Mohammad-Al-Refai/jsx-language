@@ -77,7 +77,7 @@ var tokens = []string{
 	GREATER_THAN:   "greater",
 	SMALLER_THAN:   "smaller",
 	CLOSE_OPEN_TAG: ">",
-	CLOSE_TAG:      "/>",
+	CLOSE_TAG:      "</",
 }
 
 func (t Token) String() string {

@@ -31,7 +31,8 @@ type OpenTag struct {
 	Params []Parameter `json:"params"`
 }
 type CloseTag struct {
-	Name string `json:"name"`
+	Name   string      `json:"name"`
+	Params []Parameter `json:"params"`
 }
 type Statement struct {
 	Kind StatementKind `json:"kind"`
@@ -49,8 +50,16 @@ func (ast *AST) expect(token Token, message string) {
 	}
 	ast.threwError(fmt.Sprintf("Expect %v in %v", token, message))
 }
+func (ast *AST) expectKeyWordOrAny(message string) {
+	ast.next()
+	ok, _ := isKeyword(ast.CurrentToken.Literal)
+	if ast.CurrentToken.Token == IDENT || ok {
+		return
+	}
+	ast.threwError(fmt.Sprintf("Expect %v in %v", ast.CurrentToken.Literal, message))
+}
 func (ast *AST) threwError(message string) {
-	fmt.Println(fmt.Errorf(fmt.Sprintf("[ParserError] %v", message)))
+	fmt.Println(fmt.Errorf(fmt.Sprintf("[ParserError] %v\n at %v:%v", message, ast.CurrentToken.Pos.Line, ast.CurrentToken.Pos.Column)))
 	os.Exit(1)
 }
 func (ast *AST) next() {
@@ -62,6 +71,7 @@ func (ast *AST) next() {
 	}
 }
 func (ast *AST) checkForward() Tokenized {
+	println(ast.Tokens[ast.CurrentIndex+1].Literal)
 	return ast.Tokens[ast.CurrentIndex+1]
 }
 func (ast *AST) ProduceAST() Program {
@@ -80,44 +90,48 @@ func (ast *AST) ParseExpression() Statement {
 	switch ast.CurrentToken.Token {
 	case OPEN_TAG:
 		return ast.ParseOpenTag()
-	case CLOSE_OPEN_TAG:
+	case CLOSE_TAG:
 		return ast.ParseCloseTag()
+	case EOF:
+		return Statement{Kind: EOF}
+	default:
+		ast.threwError(fmt.Sprintf("Invalid expression '%v' ", ast.CurrentToken))
+		return Statement{}
 	}
-	return Statement{Kind: EOF}
+
 }
 
 func (ast *AST) ParseOpenTag() Statement {
 	statement := Statement{Kind: K_OPEN_TAG}
-	ast.expect(IDENT, "Tag name in OpenTag")
+	ast.expectKeyWordOrAny("Tag name in OpenTag")
 	openTag := OpenTag{}
 	openTag.Name = ast.CurrentToken.Literal
 	openTag.Params = ast.ParseParameter()
 	statement.Body = openTag
+	ast.next()
 	return statement
 }
 func (ast *AST) ParseCloseTag() Statement {
 	statement := Statement{Kind: K_CLOSE_TAG}
-	ast.expect(IDENT, "Tag name in CloseTag")
+	ast.expectKeyWordOrAny("Tag name in CloseTag")
 	closeTag := CloseTag{}
 	closeTag.Name = ast.CurrentToken.Literal
-	ast.expect(CLOSE_TAG, "CloseTag")
+	closeTag.Params = ast.ParseParameter()
 	statement.Body = closeTag
+	ast.next()
 	return statement
 }
 
 func (ast *AST) ParseParameter() []Parameter {
 	params := []Parameter{}
 	for {
-		println("ParseParameter ", ast.CurrentToken.Literal)
-
 		if ast.CurrentToken.Token == CLOSE_TAG {
 			return params
 		}
 		if ast.CurrentToken.Token == CLOSE_OPEN_TAG {
 			return []Parameter{}
 		}
-		if ast.checkForward().Token == CLOSE_TAG {
-			ast.next()
+		if ast.checkForward().Token == CLOSE_OPEN_TAG {
 			return params
 		}
 		ast.expect(IDENT, "for parameter")

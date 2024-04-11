@@ -3,7 +3,14 @@
         {
             "kind": "OpenTag",
             "body": {
-                "name": "Program",
+                "name": "App",
+                "params": []
+            }
+        },
+        {
+            "kind": "CloseTag",
+            "body": {
+                "name": "Let",
                 "params": [
                     {
                         "key": "id",
@@ -11,17 +18,17 @@
                             "kind": "ParameterValue",
                             "body": {
                                 "kind": "Identifier",
-                                "body": "x"
+                                "body": "Name"
                             }
                         }
                     },
                     {
-                        "key": "name",
+                        "key": "value",
                         "value": {
                             "kind": "ParameterValue",
                             "body": {
                                 "kind": "String",
-                                "body": "mohammad"
+                                "body": "Mohammad"
                             }
                         }
                     }
@@ -31,7 +38,26 @@
         {
             "kind": "CloseTag",
             "body": {
-                "name": "Program"
+                "name": "Print",
+                "params": [
+                    {
+                        "key": "value",
+                        "value": {
+                            "kind": "ParameterValue",
+                            "body": {
+                                "kind": "Identifier",
+                                "body": "Name"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "kind": "CloseTag",
+            "body": {
+                "name": "App",
+                "params": []
             }
         },
         {

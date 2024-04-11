@@ -66,12 +66,12 @@ func (l *Lexer) Lex() (Position, Token, string) {
 			}
 			if string(next) == "/" {
 				l.Reader.ReadRune()
-				return l.Pos, CLOSE_OPEN_TAG, "</"
+				return l.Pos, CLOSE_TAG, "</"
 			} else {
 				return l.Pos, OPEN_TAG, "<"
 			}
 		case '>':
-			return l.Pos, CLOSE_TAG, ">"
+			return l.Pos, CLOSE_OPEN_TAG, ">"
 		case '+':
 			return l.Pos, ADD, "+"
 		case '-':
