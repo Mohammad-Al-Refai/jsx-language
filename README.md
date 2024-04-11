@@ -36,7 +36,7 @@ interpreted html syntax like programming language
 <App>
    <If condition={1>2}>
     ...
-    <If/>
+    </If>
 </App>
 ```
 
