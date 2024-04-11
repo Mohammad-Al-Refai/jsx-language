@@ -14,13 +14,13 @@ interpreted html syntax like programming language
 
 ```html
 <App>
-   </Let id={name} value={"Mohammad"}x>
+   </Let id={"name"} value={"Mohammad"}>
 </App>
 ```
 
 ```html
 <App>
-   </Let id={number} value={1}>
+   </Let id={"number"} value={1}>
 </App>
 ```
 
@@ -64,6 +64,6 @@ interpreted html syntax like programming language
 
 ```html
 <App>
-   </Print value={<App.Sum x={10} y={20}>}>
+   </Print value={</App.Sum x={10} y={20}>}>
 </App>
 ```

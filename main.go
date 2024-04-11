@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 
 	"m.shebli.refaai/ht/lexer"
@@ -16,7 +17,7 @@ func main() {
 	}
 
 	tokens := lex.LoadFileReader(file)
-	// fmt.Printf("%+v\n", tokens)
+	fmt.Printf("%+v\n", tokens)
 	ast := lexer.NewAST(tokens)
 	program := ast.ProduceAST()
 

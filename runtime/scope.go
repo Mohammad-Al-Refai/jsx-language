@@ -13,3 +13,12 @@ func (scope *Scope) DefineVariable(variable Variable) bool {
 	scope.Variables = append(scope.Variables, variable)
 	return true
 }
+
+func (scope *Scope) GetVariable(name string) (bool, Variable) {
+	for _, declaration := range scope.Variables {
+		if declaration.Name == name {
+			return true, declaration
+		}
+	}
+	return false, Variable{}
+}
