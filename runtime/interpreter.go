@@ -13,20 +13,39 @@ type Interpreter struct {
 	Scope Scope
 	AST   lexer.Program
 }
-func NewInterpreter(ast lexer.Program){
-	
+
+func NewInterpreter(ast lexer.Program) *Interpreter {
+	return &Interpreter{
+		AST:   ast,
+		Scope: Scope{},
+	}
 }
 func (interpreter *Interpreter) threwError(message string) {
 	fmt.Println(fmt.Errorf(fmt.Sprintf("[RuntimeError] %v", message)))
 	os.Exit(1)
 }
+func (interpreter *Interpreter) Run() {
+	for _, stm := range interpreter.AST.Statements {
+		interpreter.Evaluate(stm)
+	}
+}
 func (interpreter *Interpreter) Evaluate(statement lexer.Statement) EvalValue {
+	println(statement.Kind.String())
 	switch statement.Kind {
 	case lexer.K_OPEN_TAG:
 		return interpreter.EvaluateOpenTag(statement.Body.(lexer.OpenTag))
+	case lexer.K_CLOSE_TAG:
+		return interpreter.EvaluateCloseTag(statement.Body.(lexer.CloseTag))
+	case lexer.K_PARAMETER_VALUE:
+		return interpreter.Evaluate(statement.Body.(lexer.Statement))
 	case lexer.K_IDENTIFIER:
 		return EvalValue{Value: statement.Body.(string), Type: VAR_TYPE_STRING}
+	case lexer.K_NUMBER:
+		return EvalValue{Value: statement.Body.(int), Type: VAR_TYPE_NUMBER}
+	case lexer.K_STRING:
+		return EvalValue{Value: statement.Body.(string), Type: VAR_TYPE_STRING}
 	default:
+		println(statement.Kind.String(), " unknown")
 		return EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
 	}
 }
@@ -64,8 +83,9 @@ func (interpreter *Interpreter) EvaluateLetDeclaration(closeTag lexer.CloseTag) 
 		interpreter.threwError("Expect 'id' param")
 		return EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
 	}
-	isExist := interpreter.Scope.DefineVariable(Variable{Name: id.Value.(string), Value: value})
-	if isExist {
+	fmt.Printf("Declare %+v\n", evaluatedParams)
+	isOk := interpreter.Scope.DefineVariable(Variable{Name: id.Value.(string), Value: value})
+	if !isOk {
 		interpreter.threwError(fmt.Sprintf("%v is already declared", id))
 	}
 	return EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
