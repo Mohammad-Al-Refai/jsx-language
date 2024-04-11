@@ -126,7 +126,7 @@ func (l *Lexer) Lex() (Position, Token, string) {
 				startPos := l.Pos
 				l.backup()
 				lit := l.lexIdent()
-				if ok, token := isKeyword(lit); ok {
+				if ok, token := IsKeyword(lit); ok {
 					return startPos, token, lit
 				}
 				return startPos, IDENT, lit

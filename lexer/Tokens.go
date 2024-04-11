@@ -84,7 +84,7 @@ func (t Token) String() string {
 	return tokens[t]
 }
 
-func isKeyword(value string) (bool, Token) {
+func IsKeyword(value string) (bool, Token) {
 	if token, ok := keywords[value]; ok {
 		return true, token
 	}

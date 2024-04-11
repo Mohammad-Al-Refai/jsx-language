@@ -5,46 +5,33 @@
       "body": {
         "name": "App",
         "params": [],
-        "Children": [
+        "children": [
           {
-            "kind": "CloseTag",
+            "kind": "OpenTag",
             "body": {
-              "name": "Let",
-              "params": [
+              "name": "X",
+              "params": [],
+              "children": [
                 {
-                  "key": "id",
-                  "value": {
-                    "kind": "ParameterValue",
-                    "body": { "kind": "Identifier", "body": "Name" }
-                  }
-                },
-                {
-                  "key": "value",
-                  "value": {
-                    "kind": "ParameterValue",
-                    "body": { "kind": "String", "body": "Mohammad" }
-                  }
-                }
-              ]
-            }
-          },
-          {
-            "kind": "CloseTag",
-            "body": {
-              "name": "Let",
-              "params": [
-                {
-                  "key": "id",
-                  "value": {
-                    "kind": "ParameterValue",
-                    "body": { "kind": "Identifier", "body": "Name" }
-                  }
-                },
-                {
-                  "key": "value",
-                  "value": {
-                    "kind": "ParameterValue",
-                    "body": { "kind": "String", "body": "Mohammad" }
+                  "kind": "CloseTag",
+                  "body": {
+                    "name": "Let",
+                    "params": [
+                      {
+                        "key": "id",
+                        "value": {
+                          "kind": "ParameterValue",
+                          "body": { "kind": "Identifier", "body": "Name" }
+                        }
+                      },
+                      {
+                        "key": "value",
+                        "value": {
+                          "kind": "ParameterValue",
+                          "body": { "kind": "String", "body": "Mohammad" }
+                        }
+                      }
+                    ]
                   }
                 }
               ]

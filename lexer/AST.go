@@ -54,7 +54,7 @@ func (ast *AST) expect(token Token, message string) {
 }
 func (ast *AST) expectKeyWordOrAny(message string) {
 	ast.next()
-	ok, _ := isKeyword(ast.CurrentToken.Literal)
+	ok, _ := IsKeyword(ast.CurrentToken.Literal)
 	if ast.CurrentToken.Token == IDENT || ok {
 		return
 	}
@@ -117,6 +117,11 @@ func (ast *AST) ParseOpenTag() Statement {
 		newNode := ast.ParseExpression()
 		if ast.CurrentToken.Token == EOF {
 			ast.threwError(fmt.Sprintf("Expect </ %v >", openTag.Name))
+		}
+		if newNode.Kind == K_OPEN_TAG {
+			children = append(children, newNode)
+			ast.next()
+			continue
 		}
 		if newNode.Kind == K_CLOSE_TAG && newNode.Body.(CloseTag).Name != openTag.Name {
 			children = append(children, newNode)
