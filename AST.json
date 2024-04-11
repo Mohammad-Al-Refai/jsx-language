@@ -1,68 +1,44 @@
 {
-    "statements": [
-        {
-            "kind": "OpenTag",
-            "body": {
-                "name": "App",
-                "params": []
+  "statements": [
+    { "kind": "OpenTag", "body": { "name": "App", "params": [] } },
+    {
+      "kind": "CloseTag",
+      "body": {
+        "name": "Let",
+        "params": [
+          {
+            "key": "id",
+            "value": {
+              "kind": "ParameterValue",
+              "body": { "kind": "Identifier", "body": "Name" }
             }
-        },
-        {
-            "kind": "CloseTag",
-            "body": {
-                "name": "Let",
-                "params": [
-                    {
-                        "key": "id",
-                        "value": {
-                            "kind": "ParameterValue",
-                            "body": {
-                                "kind": "Identifier",
-                                "body": "Name"
-                            }
-                        }
-                    },
-                    {
-                        "key": "value",
-                        "value": {
-                            "kind": "ParameterValue",
-                            "body": {
-                                "kind": "String",
-                                "body": "Mohammad"
-                            }
-                        }
-                    }
-                ]
+          },
+          {
+            "key": "value",
+            "value": {
+              "kind": "ParameterValue",
+              "body": { "kind": "String", "body": "Mohammad" }
             }
-        },
-        {
-            "kind": "CloseTag",
-            "body": {
-                "name": "Print",
-                "params": [
-                    {
-                        "key": "value",
-                        "value": {
-                            "kind": "ParameterValue",
-                            "body": {
-                                "kind": "Identifier",
-                                "body": "Name"
-                            }
-                        }
-                    }
-                ]
+          }
+        ]
+      }
+    },
+    {
+      "kind": "CloseTag",
+      "body": {
+        "name": "Print",
+        "params": [
+          {
+            "key": "value",
+            "value": {
+              "kind": "ParameterValue",
+              "body": { "kind": "Identifier", "body": "Name" }
             }
-        },
-        {
-            "kind": "CloseTag",
-            "body": {
-                "name": "App",
-                "params": []
-            }
-        },
-        {
-            "kind": "EOF",
-            "body": null
-        }
-    ]
+          }
+        ]
+      }
+    },
+    { "kind": "CloseTag", "body": { "name": "App", "params": [] } },
+    { "kind": "EOF", "body": null }
+  ]
 }

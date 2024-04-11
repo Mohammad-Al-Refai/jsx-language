@@ -71,13 +71,11 @@ func (ast *AST) next() {
 	}
 }
 func (ast *AST) checkForward() Tokenized {
-	println(ast.Tokens[ast.CurrentIndex+1].Literal)
 	return ast.Tokens[ast.CurrentIndex+1]
 }
 func (ast *AST) ProduceAST() Program {
 	program := Program{}
 	for {
-		println(ast.CurrentToken.Token)
 		if ast.IsEnd {
 			return program
 		}
