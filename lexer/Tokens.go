@@ -49,11 +49,13 @@ const (
 	EQUAL_EQUAL // ==
 	EQUAL       // =
 	NOT_EQUAL   // !=
+	OR          //or
+	AND         //and
 
 )
 
-var keywords = map[string]Token{"Let": LET, "If": IF, "Function": FUNCTION, "Print": PRINT, "Return": RETURN, "For": FOR, "greater": GREATER_THAN, "smaller": SMALLER_THAN}
-var operators = map[Token]string{ADD: "+", SUB: "-", MUL: "*", DIV: "/", EQUAL_EQUAL: "==", NOT_EQUAL: "!="}
+var keywords = map[string]Token{"Let": LET, "If": IF, "Function": FUNCTION, "Print": PRINT, "Return": RETURN, "For": FOR, "greater": GREATER_THAN, "smaller": SMALLER_THAN, "or": OR, "and": AND}
+var operators = map[Token]string{ADD: "+", SUB: "-", MUL: "*", DIV: "/", EQUAL_EQUAL: "==", NOT_EQUAL: "!=", OR: "or", AND: "and"}
 
 var tokens = []string{
 	EOF:     "EOF",
@@ -84,6 +86,8 @@ var tokens = []string{
 	SMALLER_THAN:   "smaller",
 	CLOSE_OPEN_TAG: ">",
 	CLOSE_TAG:      "</",
+	OR:             "or",
+	AND:            "and",
 }
 
 func (t Token) String() string {
