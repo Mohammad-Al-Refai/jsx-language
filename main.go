@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"m.shebli.refaai/ht/lexer"
+	"m.shebli.refaai/ht/runtime"
 )
 
 func main() {
@@ -24,6 +25,6 @@ func main() {
 		panic(err)
 	}
 	os.WriteFile("AST.json", program_ast, 0777)
-	// interpreter := runtime.NewInterpreter(program)
-	// interpreter.Run()
+	interpreter := runtime.NewInterpreter(program)
+	interpreter.Run()
 }

@@ -77,7 +77,7 @@ func (interpreter *Interpreter) EvaluateOpenTag(openTag lexer.OpenTag, scope Sco
 	for _, child := range children {
 		switch child.Kind {
 		case lexer.K_IF_STATEMENT:
-			
+			return interpreter.EvaluateIfStatement(child.Body.(lexer.OpenTag), newScope)
 		case lexer.K_CLOSE_TAG:
 			interpreter.EvaluateCloseTag(child.Body.(lexer.CloseTag), newScope)
 		case lexer.K_OPEN_TAG:
@@ -101,9 +101,7 @@ func (interpreter *Interpreter) EvaluateCloseTag(closeTag lexer.CloseTag, scope 
 	}
 	return EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
 }
-func (interpreter *Interpreter) EvaluateIfStatement(openTag lexer.OpenTag, scope Scope) EvalValue {
-	return EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
-}
+
 func (interpreter *Interpreter) EvaluateLetDeclaration(closeTag lexer.CloseTag, scope Scope) EvalValue {
 	params := closeTag.Params
 	evaluatedParams := interpreter.EvaluateLetParameters(params, scope)
@@ -143,23 +141,61 @@ func (interpreter *Interpreter) EvaluateIdentifier(name string, scope Scope) Eva
 }
 
 func (interpreter *Interpreter) EvaluateNativeIfStatement(function RuntimeFunctionCall, params Parameters) EvalValue {
-
 	return function.Call(params)
 }
 
 func (interpreter *Interpreter) EvaluateNativeFunction(function RuntimeFunctionCall, params Parameters) EvalValue {
 	return function.Call(params)
 }
-
-func (interpreter *Interpreter) EvaluateCondition(bx lexer.BinaryExpr, scope Scope) EvalValue {
-	left := interpreter.Evaluate(bx.Left, scope)
-	right := interpreter.Evaluate(bx.Right, scope)
-	switch bx.Operator {
-	case lexer.EQUAL_EQUAL:
-		return EvalValue{Type: VAR_TYPE_NUMBER, Value: left.Value == right.Value}
-	case lexer.NOT_EQUAL:
-		return EvalValue{Type: VAR_TYPE_NUMBER, Value: left.Value != right.Value}
+func (interpreter *Interpreter) EvaluateIfStatement(openTag lexer.OpenTag, scope Scope) EvalValue {
+	params := openTag.Params
+	nodes := openTag.Children
+	if len(params) == 0 {
+		interpreter.threwError("Expect 'condition' param for if statement")
+	}
+	result := interpreter.EvaluateCondition(params[0], scope)
+	if result.Value == true {
+		for _, node := range nodes {
+			interpreter.Evaluate(node, scope)
+		}
+	}
+	return EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
+}
+func (interpreter *Interpreter) EvaluateCondition(param lexer.Parameter, scope Scope) EvalValue {
+	if param.Key != "condition" {
+		interpreter.threwError(fmt.Sprintf("Expect 'condition' param for if statement found '%v'", param.Key))
 	}
 
-	return EvalValue{}
+	return interpreter.EvaluateLogicalExpr(param.Value.Body.(lexer.Statement).Body.(lexer.BinaryExpr), scope)
+
 }
+func (interpreter *Interpreter) EvaluateLogicalExpr(bx lexer.BinaryExpr, scope Scope) EvalValue {
+	left := interpreter.Evaluate(bx.Left, scope)
+	rightNode := bx.Right
+	result := left.Value
+	isNotDone := true
+	for isNotDone {
+		if rightNode.Kind == lexer.K_BINARY_EXPR {
+			return interpreter.EvaluateLogicalExpr(rightNode.Body.(lexer.BinaryExpr), scope)
+		}
+		right := interpreter.Evaluate(rightNode, scope)
+		switch bx.Operator {
+		case lexer.EQUAL_EQUAL:
+			result = result == right.Value
+		case lexer.NOT_EQUAL:
+			result = result != right.Value
+		}
+		isNotDone = false
+	}
+	return EvalValue{Type: VAR_TYPE_BOOLEAN, Value: result}
+}
+
+// func (interpreter *Interpreter) EvaluateBinaryExpr(bx lexer.BinaryExpr, scope Scope) EvalValue {
+// 	left := bx.Left
+// 	right := bx.Right
+// 	result := false
+// 	for right.Kind != lexer.K_BINARY_EXPR {
+
+// 	}
+// 	return EvalValue{}
+// }
