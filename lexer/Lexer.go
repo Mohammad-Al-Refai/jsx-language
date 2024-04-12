@@ -9,19 +9,14 @@ import (
 )
 
 type Tokenized struct {
-	Pos     Position
-	Literal string `json:"literal"`
-	Token   Token  `json:"token"`
-}
-
-// convert iota to string
-func (l Tokenized) MarshalText() ([]byte, error) {
-	return []byte(l.Literal), nil
+	Pos     Position `json:"position"`
+	Literal string   `json:"literal"`
+	Token   Token    `json:"token"`
 }
 
 type Position struct {
-	Line   int
-	Column int
+	Line   int `json:"line"`
+	Column int `json:"column"`
 }
 
 type Lexer struct {

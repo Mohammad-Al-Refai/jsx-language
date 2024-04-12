@@ -10,9 +10,11 @@ const (
 	K_PARAMETERS
 	K_PARAMETER_VALUE
 	K_IDENTIFIER
+	K_IF_STATEMENT
 	K_NUMBER
 	K_STRING
 	K_OBJECT
+	K_BINARY_EXPR
 )
 
 var kinds = []string{
@@ -25,6 +27,7 @@ var kinds = []string{
 	K_NUMBER:          "Number",
 	K_STRING:          "String",
 	K_OBJECT:          "Object",
+	K_BINARY_EXPR:     "BinaryExpr",
 }
 
 func (k StatementKind) String() string {

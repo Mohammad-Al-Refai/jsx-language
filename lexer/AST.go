@@ -36,6 +36,12 @@ type CloseTag struct {
 	Name   string      `json:"name"`
 	Params []Parameter `json:"params"`
 }
+type BinaryExpr struct {
+	Left     Statement
+	Operator Token
+	Right    Statement
+}
+
 type Statement struct {
 	Kind StatementKind `json:"kind"`
 	Body interface{}   `json:"body"`
@@ -61,7 +67,12 @@ func (ast *AST) expectKeyWordOrAny(message string) {
 	ast.threwError(fmt.Sprintf("Expect %v in %v", ast.CurrentToken.Literal, message))
 }
 func (ast *AST) threwError(message string) {
-	fmt.Println(fmt.Errorf(fmt.Sprintf("[ParseError] %v at [%v:%v]", message, ast.CurrentToken.Pos.Line, ast.CurrentToken.Pos.Column)))
+	fmt.Println(fmt.Errorf(fmt.Sprintf("[ParseError][%v] %v got '%v' at [%v:%v]",
+		ast.Last,
+		message,
+		ast.CurrentToken.Literal,
+		ast.CurrentToken.Pos.Line,
+		ast.CurrentToken.Pos.Column)))
 	os.Exit(1)
 }
 func (ast *AST) next() {
@@ -81,13 +92,13 @@ func (ast *AST) ProduceAST() Program {
 		if ast.IsEnd {
 			return program
 		}
-		program.Statements = append(program.Statements, ast.ParseExpression())
+		program.Statements = append(program.Statements, ast.Parse())
 		ast.next()
 	}
 }
 
-func (ast *AST) ParseExpression() Statement {
-	ast.Last = "ParseExpression"
+func (ast *AST) Parse() Statement {
+	ast.Last = "Parse"
 	switch ast.CurrentToken.Token {
 	case OPEN_TAG:
 		return ast.ParseOpenTag()
@@ -101,9 +112,32 @@ func (ast *AST) ParseExpression() Statement {
 	}
 
 }
+func (ast *AST) ParseBinaryExpr() Statement {
+	left := ast.ParseExpr()
+	if !isOperator(ast.checkForward().Token) {
+		return left
+	}
+	for {
+		ast.next()
+		operator := ast.CurrentToken
+		ast.next()
+		right := ast.ParseBinaryExpr()
+		left = Statement{
+			Kind: K_BINARY_EXPR,
+			Body: BinaryExpr{
+				Left:     left,
+				Operator: operator.Token,
+				Right:    right,
+			},
+		}
+		if !isOperator(ast.CurrentToken.Token) {
+			return left
+		}
+	}
+}
 
 func (ast *AST) ParseOpenTag() Statement {
-	ast.Last = "ParseExpression"
+	ast.Last = "Parse"
 	statement := Statement{Kind: K_OPEN_TAG}
 	children := []Statement{}
 	isNotFoundClose := true
@@ -114,7 +148,7 @@ func (ast *AST) ParseOpenTag() Statement {
 	ast.next()
 	ast.next()
 	for isNotFoundClose {
-		newNode := ast.ParseExpression()
+		newNode := ast.Parse()
 		if ast.CurrentToken.Token == EOF {
 			ast.threwError(fmt.Sprintf("Expect </ %v >", openTag.Name))
 		}
@@ -168,35 +202,49 @@ func (ast *AST) ParseParameterValue() Statement {
 	ast.expect(LBRACE, "after '='")
 	if ast.CurrentToken.Token == LBRACE {
 		ast.next()
-		statement.Body = ast.ParsePrimaryExpression()
+		statement.Body = ast.ParseParameterValueExpr()
 	}
 	ast.expect(RBRACE, "at the end of parameter")
 	return statement
 
 }
 
-func (ast *AST) ParsePrimaryExpression() Statement {
-	stmt := Statement{}
+func (ast *AST) ParseParameterValueExpr() Statement {
+	return ast.ParseBinaryExpr()
+}
+func (ast *AST) ParseExpr() Statement {
 	token := ast.CurrentToken.Token
 	switch token {
 	case IDENT:
-		stmt.Kind = K_IDENTIFIER
-		stmt.Body = ast.CurrentToken.Literal
-		return stmt
+		return ast.ParseIdentifier()
 	case INT:
-		stmt.Kind = K_NUMBER
-		n, err := strconv.Atoi(ast.CurrentToken.Literal)
-		if err != nil {
-			panic(err)
-		}
-		stmt.Body = n
-		return stmt
+		return ast.ParseInt()
 	case STRING:
-		stmt.Kind = K_STRING
-		stmt.Body = ast.CurrentToken.Literal
+		return ast.ParseString()
 	default:
-		ast.threwError(fmt.Sprintf("Invalid expression '%v' expect 'identifier' or 'number' at %v:%v", token, ast.CurrentToken.Pos.Line, ast.CurrentToken.Pos.Column))
+		ast.threwError(fmt.Sprintf("Invalid expression '%v' at %v:%v", token, ast.CurrentToken.Pos.Line, ast.CurrentToken.Pos.Column))
 	}
-
+	return Statement{}
+}
+func (ast *AST) ParseInt() Statement {
+	stmt := Statement{}
+	stmt.Kind = K_NUMBER
+	n, err := strconv.Atoi(ast.CurrentToken.Literal)
+	if err != nil {
+		panic(err)
+	}
+	stmt.Body = n
+	return stmt
+}
+func (ast *AST) ParseString() Statement {
+	stmt := Statement{}
+	stmt.Kind = K_STRING
+	stmt.Body = ast.CurrentToken.Literal
+	return stmt
+}
+func (ast *AST) ParseIdentifier() Statement {
+	stmt := Statement{}
+	stmt.Kind = K_IDENTIFIER
+	stmt.Body = ast.CurrentToken.Literal
 	return stmt
 }
