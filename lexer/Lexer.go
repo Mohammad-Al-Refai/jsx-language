@@ -126,7 +126,7 @@ func (l *Lexer) Lex() (Position, Token, string) {
 				startPos := l.Pos
 				l.backup()
 				lit := l.lexIdent()
-				if ok, token := isKeyword(lit); ok {
+				if ok, token := IsKeyword(lit); ok {
 					return startPos, token, lit
 				}
 				return startPos, IDENT, lit
@@ -213,7 +213,7 @@ func (l *Lexer) lexQuotation() string {
 		if r == '\n' {
 			l.threwError(fmt.Sprintf(`Missing '"' at %v:%v`, l.Pos.Line, l.Pos.Column))
 		}
-		if unicode.IsLetter(r) || unicode.IsDigit(r) || unicode.IsSpace(r) {
+		if unicode.IsLetter(r) || unicode.IsDigit(r) || unicode.IsSpace(r) || unicode.IsSymbol(r) {
 			str = str + string(r)
 		} else if r == '"' {
 			return str

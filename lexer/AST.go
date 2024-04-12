@@ -11,6 +11,7 @@ type AST struct {
 	CurrentToken Tokenized
 	CurrentIndex int
 	IsEnd        bool
+	Last         string
 }
 
 func NewAST(tokens []Tokenized) *AST {
@@ -27,8 +28,9 @@ type Parameter struct {
 	Value Statement `json:"value"`
 }
 type OpenTag struct {
-	Name   string      `json:"name"`
-	Params []Parameter `json:"params"`
+	Name     string      `json:"name"`
+	Params   []Parameter `json:"params"`
+	Children []Statement `json:"children"`
 }
 type CloseTag struct {
 	Name   string      `json:"name"`
@@ -52,14 +54,14 @@ func (ast *AST) expect(token Token, message string) {
 }
 func (ast *AST) expectKeyWordOrAny(message string) {
 	ast.next()
-	ok, _ := isKeyword(ast.CurrentToken.Literal)
+	ok, _ := IsKeyword(ast.CurrentToken.Literal)
 	if ast.CurrentToken.Token == IDENT || ok {
 		return
 	}
 	ast.threwError(fmt.Sprintf("Expect %v in %v", ast.CurrentToken.Literal, message))
 }
 func (ast *AST) threwError(message string) {
-	fmt.Println(fmt.Errorf(fmt.Sprintf("[ParserError] %v\n at %v:%v", message, ast.CurrentToken.Pos.Line, ast.CurrentToken.Pos.Column)))
+	fmt.Println(fmt.Errorf(fmt.Sprintf("[ParseError] %v at [%v:%v]", message, ast.CurrentToken.Pos.Line, ast.CurrentToken.Pos.Column)))
 	os.Exit(1)
 }
 func (ast *AST) next() {
@@ -85,6 +87,7 @@ func (ast *AST) ProduceAST() Program {
 }
 
 func (ast *AST) ParseExpression() Statement {
+	ast.Last = "ParseExpression"
 	switch ast.CurrentToken.Token {
 	case OPEN_TAG:
 		return ast.ParseOpenTag()
@@ -100,16 +103,41 @@ func (ast *AST) ParseExpression() Statement {
 }
 
 func (ast *AST) ParseOpenTag() Statement {
+	ast.Last = "ParseExpression"
 	statement := Statement{Kind: K_OPEN_TAG}
+	children := []Statement{}
+	isNotFoundClose := true
 	ast.expectKeyWordOrAny("Tag name in OpenTag")
 	openTag := OpenTag{}
 	openTag.Name = ast.CurrentToken.Literal
 	openTag.Params = ast.ParseParameter()
-	statement.Body = openTag
 	ast.next()
+	ast.next()
+	for isNotFoundClose {
+		newNode := ast.ParseExpression()
+		if ast.CurrentToken.Token == EOF {
+			ast.threwError(fmt.Sprintf("Expect </ %v >", openTag.Name))
+		}
+		if newNode.Kind == K_OPEN_TAG {
+			children = append(children, newNode)
+			ast.next()
+			continue
+		}
+		if newNode.Kind == K_CLOSE_TAG && newNode.Body.(CloseTag).Name != openTag.Name {
+			children = append(children, newNode)
+			ast.next()
+		} else {
+			isNotFoundClose = false
+		}
+
+	}
+	openTag.Children = children
+	statement.Body = openTag
 	return statement
+
 }
 func (ast *AST) ParseCloseTag() Statement {
+	ast.Last = "ParseCloseTag"
 	statement := Statement{Kind: K_CLOSE_TAG}
 	ast.expectKeyWordOrAny("Tag name in CloseTag")
 	closeTag := CloseTag{}
@@ -121,34 +149,28 @@ func (ast *AST) ParseCloseTag() Statement {
 }
 
 func (ast *AST) ParseParameter() []Parameter {
+	ast.Last = "ParseParameter"
 	params := []Parameter{}
-	for {
-		if ast.CurrentToken.Token == CLOSE_TAG {
-			return params
-		}
-		if ast.CurrentToken.Token == CLOSE_OPEN_TAG {
-			return []Parameter{}
-		}
-		if ast.checkForward().Token == CLOSE_OPEN_TAG {
-			return params
-		}
+	for ast.checkForward().Token != CLOSE_OPEN_TAG {
 		ast.expect(IDENT, "for parameter")
 		param := Parameter{}
 		param.Key = ast.CurrentToken.Literal
 		ast.expect(EQUAL, "after key")
 		param.Value = ast.ParseParameterValue()
-		if ast.CurrentToken.Token == RBRACE {
-			params = append(params, param)
-		}
+		params = append(params, param)
 	}
+
+	return params
 }
 func (ast *AST) ParseParameterValue() Statement {
+	ast.Last = "ParseParameterValue"
 	statement := Statement{Kind: K_PARAMETER_VALUE}
 	ast.expect(LBRACE, "after '='")
 	if ast.CurrentToken.Token == LBRACE {
 		ast.next()
 		statement.Body = ast.ParsePrimaryExpression()
 	}
+	ast.expect(RBRACE, "at the end of parameter")
 	return statement
 
 }
@@ -160,7 +182,6 @@ func (ast *AST) ParsePrimaryExpression() Statement {
 	case IDENT:
 		stmt.Kind = K_IDENTIFIER
 		stmt.Body = ast.CurrentToken.Literal
-		ast.next()
 		return stmt
 	case INT:
 		stmt.Kind = K_NUMBER
@@ -173,7 +194,6 @@ func (ast *AST) ParsePrimaryExpression() Statement {
 	case STRING:
 		stmt.Kind = K_STRING
 		stmt.Body = ast.CurrentToken.Literal
-		ast.next()
 	default:
 		ast.threwError(fmt.Sprintf("Invalid expression '%v' expect 'identifier' or 'number' at %v:%v", token, ast.CurrentToken.Pos.Line, ast.CurrentToken.Pos.Column))
 	}

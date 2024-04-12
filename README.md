@@ -7,27 +7,27 @@ interpreted html syntax like programming language
 ```html
 <App>
 ...
-<App/>
+</App>
 ```
 
 ## Variables
 
 ```html
 <App>
-   <Let id={name} value={"Mohammad"}/>
-<App/>
+   </Let id={"name"} value={"Mohammad"}>
+</App>
 ```
 
 ```html
 <App>
-   <Let id={number} value={1}/>
-<App/>
+   </Let id={"number"} value={1}>
+</App>
 ```
 
 ```html
 <App>
-   <Let id={"names"} value={[App.name,"A"]}/>
-<App/>
+   </Let id={"names"} value={[App.name,"A"]}>
+</App>
 ```
 
 ## If
@@ -36,8 +36,8 @@ interpreted html syntax like programming language
 <App>
    <If condition={1>2}>
     ...
-    <If/>
-<App/>
+    </If>
+</App>
 ```
 
 ## Loop
@@ -46,8 +46,8 @@ interpreted html syntax like programming language
 <App>
    <For var={i} from={0} to={10}>
      <Print value={For.i}/>
-    <For/>
-<App/>
+    </For>
+</App>
 ```
 
 ## Function
@@ -56,14 +56,14 @@ interpreted html syntax like programming language
 <App>
    <Function id={"Sum"} params={x,y}>
         <Return value={Sum.x+Sum.y}>
-    <Function/>
-<App/>
+    </Function>
+</App>
 ```
 
 ### Call function
 
 ```html
 <App>
-   <Print value={<App.Sum x={10} y={20}>}/>
-<App/>
+   </Print value={</App.Sum x={10} y={20}>}>
+</App>
 ```
