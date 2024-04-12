@@ -1,5 +1,9 @@
 package lexer
 
+import (
+	"fmt"
+)
+
 type Token int
 
 func (l Token) MarshalText() ([]byte, error) {
@@ -81,7 +85,7 @@ var tokens = []string{
 }
 
 func (t Token) String() string {
-	return tokens[t]
+	return fmt.Sprintf("%+v\n", tokens[t])
 }
 
 func IsKeyword(value string) (bool, Token) {

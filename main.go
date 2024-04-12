@@ -6,28 +6,24 @@ import (
 	"os"
 
 	"m.shebli.refaai/ht/lexer"
-	"m.shebli.refaai/ht/runtime"
 )
 
 func main() {
 	lex := lexer.Lexer{}
-	file, err := os.Open("code.html")
+	file, err := os.Open("code.ht")
 	if err != nil {
 		panic(err)
 	}
-
 	tokens := lex.LoadFileReader(file)
 	fmt.Printf("%+v\n", tokens)
 	ast := lexer.NewAST(tokens)
 	program := ast.ProduceAST()
-
 	// fmt.Printf("%+v\n", program)
-	data, err := json.Marshal(program)
+	program_ast, err := json.Marshal(program)
 	if err != nil {
 		panic(err)
 	}
-
-	os.WriteFile("AST.json", data, 0777)
-	interpreter := runtime.NewInterpreter(program)
-	interpreter.Run()
+	os.WriteFile("AST.json", program_ast, 0777)
+	// interpreter := runtime.NewInterpreter(program)
+	// interpreter.Run()
 }
