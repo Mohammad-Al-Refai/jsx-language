@@ -96,6 +96,17 @@ func (l *Lexer) Lex() (Position, Token, string) {
 			} else {
 				return l.Pos, EQUAL, "="
 			}
+		case '!':
+			next, err := l.Reader.Peek(1)
+			if err != nil {
+				if err == io.EOF {
+					l.threwError(fmt.Sprintf("unknown token '%v'", "!"))
+				}
+			}
+			if string(next) == "=" {
+				l.Reader.ReadRune()
+				return l.Pos, NOT_EQUAL, "!="
+			}
 		case '#':
 			// ignore anything after # until detect a new line
 			for {

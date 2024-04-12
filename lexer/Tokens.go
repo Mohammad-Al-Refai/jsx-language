@@ -47,12 +47,13 @@ const (
 	FOR
 	// operators
 	EQUAL_EQUAL // ==
-	EQUAL       // ==
+	EQUAL       // =
+	NOT_EQUAL   // !=
 
 )
 
 var keywords = map[string]Token{"Let": LET, "If": IF, "Function": FUNCTION, "Print": PRINT, "Return": RETURN, "For": FOR, "greater": GREATER_THAN, "smaller": SMALLER_THAN}
-var operators = map[Token]string{ADD: "+", SUB: "-", MUL: "*", DIV: "/"}
+var operators = map[Token]string{ADD: "+", SUB: "-", MUL: "*", DIV: "/", EQUAL_EQUAL: "==", NOT_EQUAL: "!="}
 
 var tokens = []string{
 	EOF:     "EOF",
@@ -71,6 +72,7 @@ var tokens = []string{
 	MUL:            "*",
 	DIV:            "/",
 	EQUAL_EQUAL:    "==",
+	NOT_EQUAL:      "!=",
 	EQUAL:          "=",
 	IF:             "If",
 	LET:            "Let",
