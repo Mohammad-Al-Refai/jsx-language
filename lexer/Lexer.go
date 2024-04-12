@@ -219,7 +219,7 @@ func (l *Lexer) lexQuotation() string {
 		if r == '\n' {
 			l.threwError(fmt.Sprintf(`Missing '"' at %v:%v`, l.Pos.Line, l.Pos.Column))
 		}
-		if unicode.IsLetter(r) || unicode.IsDigit(r) || unicode.IsSpace(r) || unicode.IsSymbol(r) {
+		if unicode.IsLetter(r) || unicode.IsDigit(r) || unicode.IsSpace(r) || unicode.IsSymbol(r)||string(r)=="!" {
 			str = str + string(r)
 		} else if r == '"' {
 			return str

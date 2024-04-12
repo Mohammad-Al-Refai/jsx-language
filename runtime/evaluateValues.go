@@ -7,6 +7,18 @@ type EvalValue struct {
 	Type  VarType
 }
 
+func (ev *EvalValue) Is(t VarType) bool {
+	return ev.Type == t
+}
+func (ev *EvalValue) ExpectAnyOf(t []VarType) bool {
+	for _, ty := range t {
+		if ev.Type == ty {
+			return true
+		}
+	}
+	return false
+}
+
 type RuntimeFunction struct {
 	Name  string
 	Scope Scope

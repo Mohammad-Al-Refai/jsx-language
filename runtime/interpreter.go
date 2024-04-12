@@ -117,7 +117,7 @@ func (interpreter *Interpreter) EvaluateLetDeclaration(closeTag lexer.CloseTag, 
 		return EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
 	}
 
-	isOk := interpreter.Scope.DefineVariable(Variable{Name: id.Value.(string), Value: value})
+	isOk := interpreter.Scope.DefineVariable(Variable{Name: id.Value.(string), Value: value.Value, ValueType: value.Type})
 	if !isOk {
 		interpreter.threwError(fmt.Sprintf("%v is already declared", id))
 	}
@@ -172,34 +172,36 @@ func (interpreter *Interpreter) EvaluateCondition(param lexer.Parameter, scope S
 func (interpreter *Interpreter) EvaluateLogicalExpr(bx lexer.BinaryExpr, scope Scope) EvalValue {
 	left := interpreter.Evaluate(bx.Left, scope)
 	rightNode := bx.Right
-	result := left.Value
 	isNotDone := true
 	for isNotDone {
 		if rightNode.Kind == lexer.K_BINARY_EXPR {
 			return interpreter.EvaluateLogicalExpr(rightNode.Body.(lexer.BinaryExpr), scope)
 		}
 		right := interpreter.Evaluate(rightNode, scope)
+		fmt.Printf("L:%+v\nR:%+v\n", left, right)
 		switch bx.Operator {
 		case lexer.EQUAL_EQUAL:
-			result = result == right.Value
+			left.Value = left.Value == right.Value
 		case lexer.NOT_EQUAL:
-			result = result != right.Value
+			left.Value = left.Value != right.Value
 		case lexer.OR:
-			result = result.(bool) || right.Value.(bool)
+			if !left.Is(VAR_TYPE_BOOLEAN) {
+				interpreter.threwError(fmt.Sprintf("Expect boolean got '%v'", left.Type))
+			}
+			if !right.Is(VAR_TYPE_BOOLEAN) {
+				interpreter.threwError(fmt.Sprintf("Expect boolean got '%v'", right.Type))
+			}
+			left.Value = left.Value.(bool) || right.Value.(bool)
 		case lexer.AND:
-			result = result.(bool) && right.Value.(bool)
+			if !left.Is(VAR_TYPE_BOOLEAN) {
+				interpreter.threwError(fmt.Sprintf("Expect boolean got '%v'", left.Type))
+			}
+			if !right.Is(VAR_TYPE_BOOLEAN) {
+				interpreter.threwError(fmt.Sprintf("Expect boolean got '%v'", right.Type))
+			}
+			left.Value = left.Value.(bool) && right.Value.(bool)
 		}
 		isNotDone = false
 	}
-	return EvalValue{Type: VAR_TYPE_BOOLEAN, Value: result}
+	return left
 }
-
-// func (interpreter *Interpreter) EvaluateBinaryExpr(bx lexer.BinaryExpr, scope Scope) EvalValue {
-// 	left := bx.Left
-// 	right := bx.Right
-// 	result := false
-// 	for right.Kind != lexer.K_BINARY_EXPR {
-
-// 	}
-// 	return EvalValue{}
-// }
