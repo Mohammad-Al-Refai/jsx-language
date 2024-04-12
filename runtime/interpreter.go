@@ -184,6 +184,10 @@ func (interpreter *Interpreter) EvaluateLogicalExpr(bx lexer.BinaryExpr, scope S
 			result = result == right.Value
 		case lexer.NOT_EQUAL:
 			result = result != right.Value
+		case lexer.OR:
+			result = result.(bool) || right.Value.(bool)
+		case lexer.AND:
+			result = result.(bool) && right.Value.(bool)
 		}
 		isNotDone = false
 	}
