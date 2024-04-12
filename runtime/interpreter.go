@@ -32,6 +32,11 @@ func NewInterpreter(ast lexer.Program) *Interpreter {
 		Name:     "Print",
 		Call:     NativePrint,
 	}})
+	globalScope.DefineVariable(Variable{Name: "If", ValueType: VAR_TYPE_NATIVE_FUNCTION, Value: RuntimeFunctionCall{
+		IsNative: true,
+		Name:     "If",
+		Call:     NativeIfStatement,
+	}})
 	return &Interpreter{
 		AST:              ast,
 		Scope:            globalScope,
@@ -64,9 +69,9 @@ func (interpreter *Interpreter) Evaluate(statement lexer.Statement) EvalValue {
 	case lexer.K_IDENTIFIER:
 		return interpreter.EvaluateIdentifier(statement.Body.(string))
 	case lexer.K_NUMBER:
-		return EvalValue{Value: statement.Body.(int), Type: VAR_TYPE_NUMBER}
+		return EvalValue{Type: VAR_TYPE_NUMBER, Value: statement.Body.(int)}
 	case lexer.K_STRING:
-		return EvalValue{Value: statement.Body.(string), Type: VAR_TYPE_STRING}
+		return EvalValue{Type: VAR_TYPE_STRING, Value: statement.Body.(string)}
 	case lexer.K_EOF:
 		return EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
 	default:
@@ -77,6 +82,9 @@ func (interpreter *Interpreter) Evaluate(statement lexer.Statement) EvalValue {
 
 func (interpreter *Interpreter) EvaluateOpenTag(openTag lexer.OpenTag) EvalValue {
 	children := openTag.Children
+	// if openTag.Name=="If" {
+	// 	return
+	// }
 	for _, child := range children {
 		switch child.Kind {
 		case lexer.K_CLOSE_TAG:
@@ -84,7 +92,6 @@ func (interpreter *Interpreter) EvaluateOpenTag(openTag lexer.OpenTag) EvalValue
 		case lexer.K_OPEN_TAG:
 			interpreter.Evaluate(child)
 		}
-
 	}
 	return EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
 }
@@ -140,6 +147,10 @@ func (interpreter *Interpreter) EvaluateIdentifier(name string) EvalValue {
 	}
 	interpreter.threwError(fmt.Sprintf("'%v' is undefined", name))
 	return EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
+}
+
+func (interpreter *Interpreter) EvaluateNativeIfStatement(function RuntimeFunctionCall, params Parameters) EvalValue {
+	return function.Call(params)
 }
 
 func (interpreter *Interpreter) EvaluateNativeFunction(function RuntimeFunctionCall, params Parameters) EvalValue {
