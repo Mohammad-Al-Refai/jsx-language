@@ -26,20 +26,9 @@ func (interpreter *Interpreter) next() {
 	}
 }
 func NewInterpreter(ast lexer.Program) *Interpreter {
-	globalScope := Scope{}
-	globalScope.DefineVariable(Variable{Name: "Print", ValueType: VAR_TYPE_NATIVE_FUNCTION, Value: RuntimeFunctionCall{
-		IsNative: true,
-		Name:     "Print",
-		Call:     NativePrint,
-	}})
-	globalScope.DefineVariable(Variable{Name: "If", ValueType: VAR_TYPE_NATIVE_FUNCTION, Value: RuntimeFunctionCall{
-		IsNative: true,
-		Name:     "If",
-		Call:     NativeIfStatement,
-	}})
 	return &Interpreter{
 		AST:              ast,
-		Scope:            globalScope,
+		Scope:            *GlobalScope(),
 		CurrentStatement: ast.Statements[0],
 		CurrentIndex:     0,
 	}
@@ -68,6 +57,8 @@ func (interpreter *Interpreter) Evaluate(statement lexer.Statement, scope Scope)
 		return interpreter.Evaluate(statement.Body.(lexer.Statement), scope)
 	case lexer.K_IDENTIFIER:
 		return interpreter.EvaluateIdentifier(statement.Body.(string), scope)
+	case lexer.K_IF_STATEMENT:
+		return interpreter.EvaluateIfStatement(statement.Body.(lexer.OpenTag), scope)
 	case lexer.K_NUMBER:
 		return EvalValue{Type: VAR_TYPE_NUMBER, Value: statement.Body.(int)}
 	case lexer.K_STRING:
@@ -85,6 +76,8 @@ func (interpreter *Interpreter) EvaluateOpenTag(openTag lexer.OpenTag, scope Sco
 	newScope := Scope{}
 	for _, child := range children {
 		switch child.Kind {
+		case lexer.K_IF_STATEMENT:
+			
 		case lexer.K_CLOSE_TAG:
 			interpreter.EvaluateCloseTag(child.Body.(lexer.CloseTag), newScope)
 		case lexer.K_OPEN_TAG:
@@ -109,8 +102,6 @@ func (interpreter *Interpreter) EvaluateCloseTag(closeTag lexer.CloseTag, scope 
 	return EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
 }
 func (interpreter *Interpreter) EvaluateIfStatement(openTag lexer.OpenTag, scope Scope) EvalValue {
-	// children := openTag.Children
-
 	return EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
 }
 func (interpreter *Interpreter) EvaluateLetDeclaration(closeTag lexer.CloseTag, scope Scope) EvalValue {
@@ -152,9 +143,23 @@ func (interpreter *Interpreter) EvaluateIdentifier(name string, scope Scope) Eva
 }
 
 func (interpreter *Interpreter) EvaluateNativeIfStatement(function RuntimeFunctionCall, params Parameters) EvalValue {
+
 	return function.Call(params)
 }
 
 func (interpreter *Interpreter) EvaluateNativeFunction(function RuntimeFunctionCall, params Parameters) EvalValue {
 	return function.Call(params)
+}
+
+func (interpreter *Interpreter) EvaluateCondition(bx lexer.BinaryExpr, scope Scope) EvalValue {
+	left := interpreter.Evaluate(bx.Left, scope)
+	right := interpreter.Evaluate(bx.Right, scope)
+	switch bx.Operator {
+	case lexer.EQUAL_EQUAL:
+		return EvalValue{Type: VAR_TYPE_NUMBER, Value: left.Value == right.Value}
+	case lexer.NOT_EQUAL:
+		return EvalValue{Type: VAR_TYPE_NUMBER, Value: left.Value != right.Value}
+	}
+
+	return EvalValue{}
 }

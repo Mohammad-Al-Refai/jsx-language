@@ -28,6 +28,7 @@ var kinds = []string{
 	K_STRING:          "String",
 	K_OBJECT:          "Object",
 	K_BINARY_EXPR:     "BinaryExpr",
+	K_IF_STATEMENT:    "IfStatement",
 }
 
 func (k StatementKind) String() string {

@@ -22,5 +22,5 @@ type RuntimeFunctionCall struct {
 type RuntimeIfStatement struct {
 	Condition EvalValue
 	Scope     Scope
-	Nodes     []EvalValue
+	Execute   func()
 }

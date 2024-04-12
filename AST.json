@@ -1,7 +1,7 @@
 {
   "statements": [
     {
-      "kind": "OpenTag",
+      "kind": "IfStatement",
       "body": {
         "name": "If",
         "params": [
@@ -20,7 +20,23 @@
             }
           }
         ],
-        "children": []
+        "children": [
+          {
+            "kind": "CloseTag",
+            "body": {
+              "name": "Print",
+              "params": [
+                {
+                  "key": "value",
+                  "value": {
+                    "kind": "ParameterValue",
+                    "body": { "kind": "String", "body": "Yes" }
+                  }
+                }
+              ]
+            }
+          }
+        ]
       }
     },
     { "kind": "EOF", "body": null }
