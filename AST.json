@@ -1,1 +1,34 @@
-{"statements":[{"kind":"CloseTag","body":{"name":"Let","params":[{"key":"id","value":{"kind":"ParameterValue","body":{"kind":"String","body":"x"}}},{"key":"value","value":{"kind":"ParameterValue","body":{"kind":"Number","body":1}}}]}},{"kind":"CloseTag","body":{"name":"Let","params":[{"key":"id","value":{"kind":"ParameterValue","body":{"kind":"String","body":"y"}}},{"key":"value","value":{"kind":"ParameterValue","body":{"kind":"Number","body":13}}}]}},{"kind":"IfStatement","body":{"name":"If","params":[{"key":"condition","value":{"kind":"ParameterValue","body":{"kind":"BinaryExpr","body":{"Left":{"kind":"Number","body":1},"Operator":"or\n","Right":{"kind":"BinaryExpr","body":{"Left":{"kind":"Number","body":2},"Operator":"==\n","Right":{"kind":"Number","body":3}}}}}}}],"children":[{"kind":"CloseTag","body":{"name":"Print","params":[{"key":"value","value":{"kind":"ParameterValue","body":{"kind":"String","body":"x == y"}}}]}}]}},{"kind":"EOF","body":null}]}
+{
+  "statements": [
+    {
+      "kind": "CloseTag",
+      "body": {
+        "name": "Print",
+        "params": [
+          {
+            "key": "value",
+            "value": {
+              "kind": "ParameterValue",
+              "body": {
+                "kind": "BinaryExpr",
+                "body": {
+                  "Left": { "kind": "Number", "body": 1 },
+                  "Operator": "+\n",
+                  "Right": {
+                    "kind": "BinaryExpr",
+                    "body": {
+                      "Left": { "kind": "Number", "body": 2 },
+                      "Operator": "*\n",
+                      "Right": { "kind": "Number", "body": 2 }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    { "kind": "EOF", "body": null }
+  ]
+}

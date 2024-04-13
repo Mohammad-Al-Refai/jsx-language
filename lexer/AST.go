@@ -41,7 +41,11 @@ type BinaryExpr struct {
 	Operator Token
 	Right    Statement
 }
-
+type LogicalExpr struct {
+	Left     Statement
+	Operator Token
+	Right    Statement
+}
 type Statement struct {
 	Kind StatementKind `json:"kind"`
 	Body interface{}   `json:"body"`
@@ -111,29 +115,6 @@ func (ast *AST) Parse() Statement {
 		return Statement{}
 	}
 
-}
-func (ast *AST) ParseBinaryExpr() Statement {
-	left := ast.ParseExpr()
-	if !isOperator(ast.checkForward().Token) {
-		return left
-	}
-	for {
-		ast.next()
-		operator := ast.CurrentToken
-		ast.next()
-		right := ast.ParseBinaryExpr()
-		left = Statement{
-			Kind: K_BINARY_EXPR,
-			Body: BinaryExpr{
-				Left:     left,
-				Operator: operator.Token,
-				Right:    right,
-			},
-		}
-		if !isOperator(ast.CurrentToken.Token) {
-			return left
-		}
-	}
 }
 
 func (ast *AST) ParseOpenTag() Statement {
@@ -213,7 +194,35 @@ func (ast *AST) ParseParameterValue() Statement {
 }
 
 func (ast *AST) ParseParameterValueExpr() Statement {
-	return ast.ParseBinaryExpr()
+	if isOperator(ast.checkForward().Token) {
+		return ast.ParseBinaryExpr()
+	}
+	if isLogicalOperator(ast.checkForward().Token) {
+		return ast.ParseLogicalExpr()
+	}
+	return ast.ParseExpr()
+}
+func (ast *AST) ParseBinaryExpr() Statement {
+	println("Binary")
+	left := ast.ParseExpr()
+	ast.next()
+	operator := ast.CurrentToken.Token
+	result := Statement{}
+	ast.next()
+	right := BinaryExpr{
+		Left:     left,
+		Operator: operator,
+		Right:    ast.ParseParameterValueExpr(),
+	}
+	result.Body = right
+	result.Kind = K_BINARY_EXPR
+	return result
+
+}
+func (ast *AST) ParseLogicalExpr() Statement {
+	println("Logical")
+
+	return Statement{}
 }
 func (ast *AST) ParseExpr() Statement {
 	token := ast.CurrentToken.Token

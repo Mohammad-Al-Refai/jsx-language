@@ -15,6 +15,7 @@ const (
 	K_STRING
 	K_OBJECT
 	K_BINARY_EXPR
+	K_LOGICAL_EXPR
 )
 
 var kinds = []string{
@@ -28,6 +29,7 @@ var kinds = []string{
 	K_STRING:          "String",
 	K_OBJECT:          "Object",
 	K_BINARY_EXPR:     "BinaryExpr",
+	K_LOGICAL_EXPR:    "LogicalExpr",
 	K_IF_STATEMENT:    "IfStatement",
 }
 

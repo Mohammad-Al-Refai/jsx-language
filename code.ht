@@ -1,6 +1,2 @@
-</Let id={"x"} value={1}>
-</Let id={"y"} value={13}>
 
-<If condition={1 or 2==3}>
-    </Print value={"x == y"}>
-</If>
+    </Print value={1 + 2 * 2}>

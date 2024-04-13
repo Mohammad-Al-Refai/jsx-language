@@ -55,7 +55,8 @@ const (
 )
 
 var keywords = map[string]Token{"Let": LET, "If": IF, "Function": FUNCTION, "Print": PRINT, "Return": RETURN, "For": FOR, "greater": GREATER_THAN, "smaller": SMALLER_THAN, "or": OR, "and": AND}
-var operators = map[Token]string{ADD: "+", SUB: "-", MUL: "*", DIV: "/", EQUAL_EQUAL: "==", NOT_EQUAL: "!=", OR: "or", AND: "and"}
+var operators = map[Token]string{ADD: "+", SUB: "-", MUL: "*", DIV: "/", EQUAL_EQUAL: "==", NOT_EQUAL: "!="}
+var logicalOperator = map[Token]string{OR: "or", AND: "and"}
 
 var tokens = []string{
 	EOF:     "EOF",
@@ -102,5 +103,9 @@ func IsKeyword(value string) (bool, Token) {
 }
 func isOperator(value Token) bool {
 	_, ok := operators[value]
+	return ok
+}
+func isLogicalOperator(value Token) bool {
+	_, ok := logicalOperator[value]
 	return ok
 }
