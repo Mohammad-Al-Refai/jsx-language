@@ -12,23 +12,23 @@
               "body": {
                 "kind": "BinaryExpr",
                 "body": {
-                  "Left": { "kind": "Number", "body": 1 },
-                  "Operator": "+\n",
-                  "Right": {
-                    "kind": "LogicalExpr",
+                  "Left": {
+                    "kind": "BinaryExpr",
                     "body": {
-                      "Left": { "kind": "Number", "body": 2 },
-                      "Operator": "or\n",
-                      "Right": {
+                      "Left": {
                         "kind": "BinaryExpr",
                         "body": {
-                          "Left": { "kind": "Number", "body": 2 },
-                          "Operator": "*\n",
-                          "Right": { "kind": "Number", "body": 3 }
+                          "Left": { "kind": "Number", "body": 1 },
+                          "Operator": "+\n",
+                          "Right": { "kind": "Number", "body": 2 }
                         }
-                      }
+                      },
+                      "Operator": "+\n",
+                      "Right": { "kind": "Number", "body": 2 }
                     }
-                  }
+                  },
+                  "Operator": "*\n",
+                  "Right": { "kind": "Number", "body": 3 }
                 }
               }
             }

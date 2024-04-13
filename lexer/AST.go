@@ -118,7 +118,7 @@ func (ast *AST) Parse() Statement {
 }
 
 func (ast *AST) ParseOpenTag() Statement {
-	ast.Last = "Parse"
+	ast.Last = "ParseOpenTag"
 	statement := Statement{Kind: K_OPEN_TAG}
 	children := []Statement{}
 	isNotFoundClose := true
@@ -194,6 +194,7 @@ func (ast *AST) ParseParameterValue() Statement {
 }
 
 func (ast *AST) ParseParameterValueExpr() Statement {
+	ast.Last = "ParseParameterValueExpr"
 	if isOperator(ast.checkForward().Token) {
 		return ast.ParseBinaryExpr()
 	}
@@ -203,21 +204,26 @@ func (ast *AST) ParseParameterValueExpr() Statement {
 	return ast.ParseExpr()
 }
 func (ast *AST) ParseBinaryExpr() Statement {
-	println("Binary")
-	left := ast.ParseExpr()
+	ast.Last = "ParseBinaryExpr"
+	node := ast.ParseExpr()
 	ast.next()
-	operator := ast.CurrentToken.Token
-	result := Statement{}
-	ast.next()
-	right := BinaryExpr{
-		Left:     left,
-		Operator: operator,
-		Right:    ast.ParseParameterValueExpr(),
+	for isOperator(ast.CurrentToken.Token) {
+		op := ast.CurrentToken.Token
+		ast.next()
+		node = Statement{
+			Kind: K_BINARY_EXPR,
+			Body: BinaryExpr{
+				Left:     node,
+				Operator: op,
+				Right:    ast.ParseExpr(),
+			},
+		}
+		if !isOperator(ast.checkForward().Token) {
+			return node
+		}
+		ast.next()
 	}
-	result.Body = right
-	result.Kind = K_BINARY_EXPR
-	return result
-
+	return node
 }
 func (ast *AST) ParseLogicalExpr() Statement {
 	println("Logical")
@@ -236,6 +242,7 @@ func (ast *AST) ParseLogicalExpr() Statement {
 	return result
 }
 func (ast *AST) ParseExpr() Statement {
+	ast.Last = "ParseExpr"
 	token := ast.CurrentToken.Token
 	switch token {
 	case IDENT:
@@ -245,7 +252,7 @@ func (ast *AST) ParseExpr() Statement {
 	case STRING:
 		return ast.ParseString()
 	default:
-		ast.threwError(fmt.Sprintf("Invalid expression '%v' at %v:%v", token, ast.CurrentToken.Pos.Line, ast.CurrentToken.Pos.Column))
+		ast.threwError(fmt.Sprintf("Invalid expression '%v'", token))
 	}
 	return Statement{}
 }
