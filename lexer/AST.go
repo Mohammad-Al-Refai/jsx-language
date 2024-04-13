@@ -221,8 +221,19 @@ func (ast *AST) ParseBinaryExpr() Statement {
 }
 func (ast *AST) ParseLogicalExpr() Statement {
 	println("Logical")
-
-	return Statement{}
+	left := ast.ParseExpr()
+	ast.next()
+	operator := ast.CurrentToken.Token
+	result := Statement{}
+	ast.next()
+	right := BinaryExpr{
+		Left:     left,
+		Operator: operator,
+		Right:    ast.ParseParameterValueExpr(),
+	}
+	result.Body = right
+	result.Kind = K_LOGICAL_EXPR
+	return result
 }
 func (ast *AST) ParseExpr() Statement {
 	token := ast.CurrentToken.Token
