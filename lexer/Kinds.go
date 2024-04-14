@@ -12,11 +12,10 @@ const (
 	K_IDENTIFIER
 	K_OPERATOR
 	K_EXPRESSION
+	K_Array
 	K_NUMBER
 	K_STRING
 	K_OBJECT
-	K_BINARY_EXPR
-	K_LOGICAL_EXPR
 )
 
 var kinds = []string{
@@ -29,10 +28,9 @@ var kinds = []string{
 	K_NUMBER:          "Number",
 	K_STRING:          "String",
 	K_OBJECT:          "Object",
-	K_BINARY_EXPR:     "BinaryExpr",
-	K_LOGICAL_EXPR:    "LogicalExpr",
 	K_OPERATOR:        "Operator",
 	K_EXPRESSION:      "Expression",
+	K_Array:           "Array",
 }
 
 func (k StatementKind) String() string {

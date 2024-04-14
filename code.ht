@@ -2,7 +2,12 @@
  <App>
     </Let id={"x"} value={30}>
     </Let id={"y"} value={20}>
-    <If condition={x y greater}>
-    </Print value={ "Yes" }>
-    </If>
+    </SayHi name={ "Yes" }>
+    </Sum x={10} y={20} return={x}>
+    <Function id={"SayHi"} args={name}>
+        </Print value={ "Hi " name + }>
+    </Function>
+    <Function id={"Sum"} args={x,y}>
+        </Return value={ x y + }>
+    </Function>
 </App>

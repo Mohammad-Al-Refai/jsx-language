@@ -191,6 +191,9 @@ func (ast *AST) ParseParameterValueExpr() Statement {
 	for ast.CurrentToken.Token != RBRACE {
 		stmts = append(stmts, ast.ParseExpr())
 		ast.next()
+		if ast.CurrentToken.Token == COMMA {
+			ast.next()
+		}
 	}
 	stmt.Body = Expression{Statements: stmts}
 	return stmt
