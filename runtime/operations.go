@@ -13,7 +13,7 @@ func (interpreter *Interpreter) Sum(x EvalValue, y EvalValue) EvalValue {
 		return EvalValue{Type: VAR_TYPE_NUMBER, Value: y.Value.(int) + x.Value.(int)}
 	}
 	if x.IsNumber() || x.IsString() && y.IsNumber() || y.IsString() {
-		interpreter.threwError(fmt.Sprintf("expect left and right to be number found %v and %v", y.Type.String(), x.Type.String()))
+		interpreter.threwError(fmt.Sprintf("expect left and right to be number or string found %v and %v", y.Type.String(), x.Type.String()))
 	}
 	return EvalValue{Type: VAR_TYPE_NUMBER, Value: y.Value.(int) + x.Value.(int)}
 }

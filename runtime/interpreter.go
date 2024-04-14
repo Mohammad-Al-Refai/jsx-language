@@ -175,31 +175,28 @@ func (interpreter *Interpreter) EvaluateNativeFunction(function RuntimeFunctionC
 	return function.Call(params)
 }
 func (interpreter *Interpreter) EvaluateFunctionCall(function RuntimeFunction, params Parameters) EvalValue {
-	println("Call function ", function.Name)
-	fmt.Printf("Function scope %+v\n", function.Scope)
-	fmt.Printf("params  %+v\n", params)
-	function.Scope = applyParamsToArgs(&function.Scope, params)
+	interpreter.ApplyParamsToFunction(&function, params)
 	for _, child := range function.Nodes {
 		interpreter.Evaluate(child, &function.Scope)
 	}
 	return EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
 
 }
-func applyParamsToArgs(scope *Scope, params Parameters) Scope {
+func (Interpreter *Interpreter) ApplyParamsToFunction(function *RuntimeFunction, params Parameters) {
+	fmt.Println(params)
 	newVariables := []Variable{}
-	for _, variable := range scope.Variables {
-		fmt.Printf("before Variable %+v\n", scope)
+	for _, variable := range function.Scope.Variables {
 		matched := params[variable.Name]
+		if matched.Type == VAR_TYPE_UNDEFINED {
+			Interpreter.threwError(fmt.Sprintf("Expected to have %v param in function <%v>", variable.Name, function.Name))
+		}
 		temp := Variable{}
 		temp.Name = variable.Name
 		temp.Value = matched.Value
 		temp.ValueType = matched.Type
 		newVariables = append(newVariables, temp)
-		fmt.Printf("after Variable %+v\n", scope)
 	}
-	scope.Variables = newVariables
-	fmt.Printf("new Function scope %+v\n", scope)
-	return *scope
+	function.Scope.Variables = newVariables
 }
 func (interpreter *Interpreter) EvaluateIfStatement(openTag lexer.OpenTag, scope *Scope) EvalValue {
 	params := openTag.Params
@@ -261,7 +258,6 @@ func (interpreter *Interpreter) EvaluateFunctionDeclaration(openTag lexer.OpenTa
 			Nodes: openTag.Children,
 		},
 	})
-	fmt.Printf("Create function with name %v\n args %v\n", functionName.Value, args)
 	return EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
 }
 func (interpreter *Interpreter) EvaluateOperator(expr lexer.Statement, scope *Scope) EvalValue {
