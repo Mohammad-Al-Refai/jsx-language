@@ -1,16 +1,14 @@
 package runtime
 
-import "fmt"
-
 type Scope struct {
 	Variables []Variable
 	Stack     []EvalValue
 }
 
 func (scope *Scope) Push(value EvalValue) {
-	fmt.Printf("PUSH %+v\n", value)
+	// fmt.Printf("PUSH %+v\n", value)
 	scope.Stack = append(scope.Stack, value)
-	fmt.Printf("NEW STACK %+v\n", scope.Stack)
+	// fmt.Printf("NEW STACK %+v\n", scope.Stack)
 
 }
 func (scope *Scope) Pop() EvalValue {
@@ -19,9 +17,9 @@ func (scope *Scope) Pop() EvalValue {
 	}
 	last := scope.Stack[len(scope.Stack)-1]
 	scope.Stack = scope.Stack[:len(scope.Stack)-1]
-	fmt.Printf("POP %+v\n", last)
+	// fmt.Printf("POP %+v\n", last)
 
-	fmt.Printf("NEW STACK %+v\n", scope.Stack)
+	// fmt.Printf("NEW STACK %+v\n", scope.Stack)
 	return last
 }
 func (scope *Scope) DefineVariable(variable Variable) bool {

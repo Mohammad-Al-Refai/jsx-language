@@ -57,8 +57,6 @@ func (interpreter *Interpreter) Evaluate(statement lexer.Statement, scope *Scope
 		return interpreter.Evaluate(statement.Body.(lexer.Statement), scope)
 	case lexer.K_IDENTIFIER:
 		return interpreter.EvaluateIdentifier(statement.Body.(string), scope)
-	case lexer.K_IF_STATEMENT:
-		return interpreter.EvaluateIfStatement(statement.Body.(lexer.OpenTag), scope)
 	case lexer.K_EXPRESSION:
 		return interpreter.EvaluateExpression(statement.Body.(lexer.Expression), scope)
 	case lexer.K_NUMBER:
@@ -78,12 +76,14 @@ func (interpreter *Interpreter) EvaluateOpenTag(openTag lexer.OpenTag, scope *Sc
 	newScope := Scope{}
 	for _, child := range children {
 		switch child.Kind {
-		case lexer.K_IF_STATEMENT:
-			return interpreter.EvaluateIfStatement(child.Body.(lexer.OpenTag), &newScope)
-		case lexer.K_CLOSE_TAG:
-			interpreter.EvaluateCloseTag(child.Body.(lexer.CloseTag), &newScope)
 		case lexer.K_OPEN_TAG:
-			interpreter.Evaluate(child, &newScope)
+			if child.Body.(lexer.OpenTag).Name == "If" {
+				interpreter.EvaluateIfStatement(child.Body.(lexer.OpenTag), scope)
+				continue
+			}
+			interpreter.EvaluateOpenTag(child.Body.(lexer.OpenTag), &newScope)
+		case lexer.K_CLOSE_TAG:
+			interpreter.EvaluateCloseTag(child.Body.(lexer.CloseTag), scope)
 		}
 	}
 	return EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
@@ -167,7 +167,7 @@ func (interpreter *Interpreter) EvaluateCondition(param lexer.Parameter, scope *
 	if param.Key != "condition" {
 		interpreter.threwError(fmt.Sprintf("Expect 'condition' param for if statement found '%v'", param.Key))
 	}
-	return interpreter.Evaluate(param.Value, scope)
+	return interpreter.EvaluateExpression(param.Value.Body.(lexer.Statement).Body.(lexer.Expression), scope)
 }
 
 func (interpreter *Interpreter) EvaluateExpression(expr lexer.Expression, scope *Scope) EvalValue {
@@ -182,7 +182,6 @@ func (interpreter *Interpreter) EvaluateExpression(expr lexer.Expression, scope 
 }
 
 func (interpreter *Interpreter) EvaluateOperator(expr lexer.Statement, scope *Scope) EvalValue {
-	fmt.Printf("OP %+v\n", expr)
 	if expr.Body == "+" {
 		return interpreter.Sum(scope.Pop(), scope.Pop())
 	}
@@ -208,69 +207,4 @@ func (interpreter *Interpreter) EvaluateOperator(expr lexer.Statement, scope *Sc
 		return interpreter.NotEqual(scope.Pop(), scope.Pop())
 	}
 	return EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
-}
-
-func (interpreter *Interpreter) Sum(x EvalValue, y EvalValue) EvalValue {
-	fmt.Printf("Sum => %+v %+v\n", x, y)
-	if !(x.IsNumber() || x.IsString() || y.IsNumber() || y.IsString()) {
-		interpreter.threwError(fmt.Sprintf("expect string or number found %v and %v", y.Type.String(), x.Type.String()))
-	}
-	if x.IsString() && y.IsString() {
-		return EvalValue{Type: VAR_TYPE_NUMBER, Value: y.Value.(string) + x.Value.(string)}
-	}
-	if x.IsNumber() && y.IsNumber() {
-		return EvalValue{Type: VAR_TYPE_NUMBER, Value: y.Value.(int) + x.Value.(int)}
-	}
-	if x.IsNumber() || x.IsString() && y.IsNumber() || y.IsString() {
-		interpreter.threwError(fmt.Sprintf("expect left and right to be number found %v and %v", y.Type.String(), x.Type.String()))
-	}
-	return EvalValue{Type: VAR_TYPE_NUMBER, Value: y.Value.(int) + x.Value.(int)}
-}
-func (interpreter *Interpreter) Mul(x EvalValue, y EvalValue) EvalValue {
-	if !(x.IsNumber() || y.IsNumber()) {
-		interpreter.threwError(fmt.Sprintf("expect both number found %v and %v", y.Type.String(), x.Type.String()))
-	}
-	return EvalValue{Type: VAR_TYPE_NUMBER, Value: x.Value.(int) * y.Value.(int)}
-}
-func (interpreter *Interpreter) Div(x EvalValue, y EvalValue) EvalValue {
-	if !(x.IsNumber() || y.IsNumber()) {
-		interpreter.threwError(fmt.Sprintf("expect both  number found %v and %v", y.Type.String(), x.Type.String()))
-	}
-	return EvalValue{Type: VAR_TYPE_NUMBER, Value: x.Value.(int) / y.Value.(int)}
-}
-func (interpreter *Interpreter) Sub(x EvalValue, y EvalValue) EvalValue {
-	if !(x.IsNumber() || y.IsNumber()) {
-		interpreter.threwError(fmt.Sprintf("expect both number found %v and %v", y.Type.String(), x.Type.String()))
-	}
-	return EvalValue{Type: VAR_TYPE_NUMBER, Value: x.Value.(int) - y.Value.(int)}
-}
-func (interpreter *Interpreter) GreaterThan(x EvalValue, y EvalValue) EvalValue {
-	if !(x.IsNumber() || y.IsNumber()) {
-		interpreter.threwError(fmt.Sprintf("expect both number or boolean found %v and %v", y.Type.String(), x.Type.String()))
-	}
-	return EvalValue{Type: VAR_TYPE_BOOLEAN, Value: y.Value.(int) > x.Value.(int)}
-}
-func (interpreter *Interpreter) SmallerThan(x EvalValue, y EvalValue) EvalValue {
-	if !(x.IsNumber() || y.IsNumber()) {
-		interpreter.threwError(fmt.Sprintf("expect both number or boolean found %v and %v", y.Type.String(), x.Type.String()))
-	}
-	return EvalValue{Type: VAR_TYPE_BOOLEAN, Value: y.Value.(int) < x.Value.(int)}
-}
-func (interpreter *Interpreter) Equal(x EvalValue, y EvalValue) EvalValue {
-	if !(x.IsNumber() || x.IsString() || y.IsNumber() || y.IsString()) {
-		interpreter.threwError(fmt.Sprintf("expect string or number found %v and %v", y.Type.String(), x.Type.String()))
-	}
-	if x.IsString() && y.IsString() {
-		return EvalValue{Type: VAR_TYPE_NUMBER, Value: y.Value.(string) == x.Value.(string)}
-	}
-	return EvalValue{Type: VAR_TYPE_BOOLEAN, Value: y.Value.(int) == x.Value.(int)}
-}
-func (interpreter *Interpreter) NotEqual(x EvalValue, y EvalValue) EvalValue {
-	if !(x.IsNumber() || x.IsString() || y.IsNumber() || y.IsString()) {
-		interpreter.threwError(fmt.Sprintf("expect string or number found %v and %v", y.Type.String(), x.Type.String()))
-	}
-	if x.IsString() && y.IsString() {
-		return EvalValue{Type: VAR_TYPE_NUMBER, Value: y.Value.(string) != x.Value.(string)}
-	}
-	return EvalValue{Type: VAR_TYPE_BOOLEAN, Value: y.Value.(int) != x.Value.(int)}
 }

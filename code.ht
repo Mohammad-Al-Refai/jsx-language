@@ -1,5 +1,8 @@
-<App>
-    </Let id={"x"} value={10}>
+
+ <App>
+    </Let id={"x"} value={30}>
     </Let id={"y"} value={20}>
-    </Print value={ x y smaller}>
+    <If condition={x y greater}>
+    </Print value={ "Yes" }>
+    </If>
 </App>

@@ -9,11 +9,11 @@ func GlobalScope() *Scope {
 		Name:     "Print",
 		Call:     NativePrint,
 	}})
-	// globalScope.DefineVariable(Variable{Name: "If", ValueType: VAR_TYPE_NATIVE_FUNCTION, Value: RuntimeFunctionCall{
-	// 	IsNative: true,
-	// 	Name:     "If",
-	// 	Call:     NativeIfStatement,
-	// }})
+	globalScope.DefineVariable(Variable{Name: "If", ValueType: VAR_TYPE_NATIVE_FUNCTION, Value: RuntimeFunctionCall{
+		IsNative: true,
+		Name:     "If",
+		Call:     NativeIfStatement,
+	}})
 	return &globalScope
 }
 func NativePrint(param Parameters) EvalValue {
@@ -21,9 +21,9 @@ func NativePrint(param Parameters) EvalValue {
 	return EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
 }
 
-// func NativeIfStatement(condition EvalValue) EvalValue {
-// 	if condition.Value.(bool) {
-// 		return EvalValue{Type: VAR_TYPE_BOOLEAN, Value: "true"}
-// 	}
-// 	return EvalValue{Type: VAR_TYPE_BOOLEAN, Value: "false"}
-// }
+func NativeIfStatement(param Parameters) EvalValue {
+	if param["condition"].Value.(bool) {
+		return EvalValue{Type: VAR_TYPE_BOOLEAN, Value: "true"}
+	}
+	return EvalValue{Type: VAR_TYPE_BOOLEAN, Value: "false"}
+}

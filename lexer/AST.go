@@ -118,9 +118,6 @@ func (ast *AST) ParseOpenTag() Statement {
 	ast.expectKeyWordOrAny("Tag name in OpenTag")
 	openTag := OpenTag{}
 	openTag.Name = ast.CurrentToken.Literal
-	if ast.CurrentToken.Literal == "If" {
-		statement.Kind = K_IF_STATEMENT
-	}
 	openTag.Params = ast.ParseParameter()
 	ast.next()
 	ast.next()
