@@ -69,6 +69,8 @@ func (l *Lexer) Lex() (Position, Token, string) {
 			return l.Pos, CLOSE_OPEN_TAG, ">"
 		case '+':
 			return l.Pos, ADD, "+"
+		case '/':
+			return l.Pos, DIV, "/"
 		case '-':
 			return l.Pos, SUB, "-"
 		case '*':
@@ -219,7 +221,7 @@ func (l *Lexer) lexQuotation() string {
 		if r == '\n' {
 			l.threwError(fmt.Sprintf(`Missing '"' at %v:%v`, l.Pos.Line, l.Pos.Column))
 		}
-		if unicode.IsLetter(r) || unicode.IsDigit(r) || unicode.IsSpace(r) || unicode.IsSymbol(r)||string(r)=="!" {
+		if unicode.IsLetter(r) || unicode.IsDigit(r) || unicode.IsSpace(r) || unicode.IsSymbol(r) || string(r) == "!" {
 			str = str + string(r)
 		} else if r == '"' {
 			return str

@@ -1,2 +1,5 @@
-
-    </Print value={1 1 +}>
+<App>
+    </Let id={"x"} value={10}>
+    </Let id={"y"} value={20}>
+    </Print value={ x y smaller}>
+</App>
