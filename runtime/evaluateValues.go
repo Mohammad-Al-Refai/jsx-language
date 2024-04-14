@@ -28,7 +28,7 @@ func (ev *EvalValue) ExpectAnyOf(t []VarType) bool {
 type RuntimeFunction struct {
 	Name  string
 	Scope Scope
-	Nodes []EvalValue
+	Nodes []lexer.Statement
 }
 type RuntimeFunctionCall struct {
 	Name     string

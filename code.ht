@@ -1,13 +1,8 @@
 
- <App>
-    </Let id={"x"} value={30}>
-    </Let id={"y"} value={20}>
-    </SayHi name={ "Yes" }>
-    </Sum x={10} y={20} return={x}>
-    <Function id={"SayHi"} args={name}>
+
+  <App>
+    <Function id={"SayHi"} args={"name","age"}>
         </Print value={ "Hi " name + }>
     </Function>
-    <Function id={"Sum"} args={x,y}>
-        </Return value={ x y + }>
-    </Function>
+    </SayHi name={"mohammad"} age={20}>
 </App>

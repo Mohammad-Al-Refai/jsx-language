@@ -37,7 +37,25 @@ func (interpreter *Interpreter) threwError(message string) {
 	fmt.Println(fmt.Errorf(fmt.Sprintf("[RuntimeError] %v", message)))
 	os.Exit(1)
 }
+func (interpreter *Interpreter) Setup() {
+	first := interpreter.AST.Statements[0]
+	if first.Kind != lexer.K_OPEN_TAG || (first.Kind == lexer.K_OPEN_TAG && first.Body.(lexer.OpenTag).Name != "App") {
+		interpreter.threwError("Missing <App>")
+		return
+	}
+	if interpreter.AST.Declarations != nil || len(interpreter.AST.Declarations) != 0 {
+		println("Found declarations")
+		declares := interpreter.AST.Declarations
+		statements := interpreter.AST.Statements
+		newStatements := []lexer.Statement{}
+		newStatements = append(newStatements, declares...)
+		newStatements = append(newStatements, statements...)
+		interpreter.AST.Statements = newStatements
+		interpreter.CurrentStatement = interpreter.AST.Statements[0]
+	}
+}
 func (interpreter *Interpreter) Run() {
+	interpreter.Setup()
 	for {
 		interpreter.Evaluate(interpreter.CurrentStatement, interpreter.Scope)
 		interpreter.next()
@@ -72,8 +90,11 @@ func (interpreter *Interpreter) Evaluate(statement lexer.Statement, scope *Scope
 }
 
 func (interpreter *Interpreter) EvaluateOpenTag(openTag lexer.OpenTag, scope *Scope) EvalValue {
+	fmt.Printf("Name => %+v\n", openTag.Name)
+	if openTag.Name == "Function" {
+		return interpreter.EvaluateFunctionDeclaration(openTag, &Scope{})
+	}
 	children := openTag.Children
-	newScope := Scope{}
 	for _, child := range children {
 		switch child.Kind {
 		case lexer.K_OPEN_TAG:
@@ -81,7 +102,7 @@ func (interpreter *Interpreter) EvaluateOpenTag(openTag lexer.OpenTag, scope *Sc
 				interpreter.EvaluateIfStatement(child.Body.(lexer.OpenTag), scope)
 				continue
 			}
-			interpreter.EvaluateOpenTag(child.Body.(lexer.OpenTag), &newScope)
+			interpreter.EvaluateOpenTag(child.Body.(lexer.OpenTag), &Scope{})
 		case lexer.K_CLOSE_TAG:
 			interpreter.EvaluateCloseTag(child.Body.(lexer.CloseTag), scope)
 		}
@@ -99,6 +120,11 @@ func (interpreter *Interpreter) EvaluateCloseTag(closeTag lexer.CloseTag, scope 
 	if isInScope && variable.ValueType == VAR_TYPE_NATIVE_FUNCTION {
 		return interpreter.EvaluateNativeFunction(
 			variable.Value.(RuntimeFunctionCall),
+			interpreter.EvaluateParameters(closeTag.Params, scope))
+	}
+	if isInScope && variable.ValueType == VAR_TYPE_FUNCTION {
+		return interpreter.EvaluateFunctionCall(
+			variable.Value.(RuntimeFunction),
 			interpreter.EvaluateParameters(closeTag.Params, scope))
 	}
 	return EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
@@ -149,6 +175,15 @@ func (interpreter *Interpreter) EvaluateNativeIfStatement(function RuntimeFuncti
 func (interpreter *Interpreter) EvaluateNativeFunction(function RuntimeFunctionCall, params Parameters) EvalValue {
 	return function.Call(params)
 }
+func (interpreter *Interpreter) EvaluateFunctionCall(function RuntimeFunction, params Parameters) EvalValue {
+	println("Call function ", function.Name)
+	fmt.Printf("Function scope %+v\n", function.Scope)
+	for _, child := range function.Nodes {
+		interpreter.Evaluate(child, &function.Scope)
+	}
+	return EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
+
+}
 func (interpreter *Interpreter) EvaluateIfStatement(openTag lexer.OpenTag, scope *Scope) EvalValue {
 	params := openTag.Params
 	nodes := openTag.Children
@@ -180,7 +215,38 @@ func (interpreter *Interpreter) EvaluateExpression(expr lexer.Expression, scope 
 	}
 	return scope.Pop()
 }
-
+func (interpreter *Interpreter) EvaluateFunctionDeclaration(openTag lexer.OpenTag, scope *Scope) EvalValue {
+	if len(openTag.Params) == 0 || openTag.Params[0].Key != "id" {
+		interpreter.threwError("Missing id param for function deceleration")
+		return EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
+	}
+	params := openTag.Params
+	functionName := interpreter.Evaluate(params[0].Value, scope)
+	args := Parameters{}
+	if len(params) > 1 {
+		if params[1].Key == "args" {
+			for _, expr := range params[1].Value.Body.(lexer.Statement).Body.(lexer.Expression).Statements {
+				p := interpreter.Evaluate(expr, scope)
+				args[p.Value.(string)] = p
+				scope.DefineVariable(Variable{
+					Name:      p.Value.(string),
+					ValueType: p.Type,
+					Value:     EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}})
+			}
+		}
+	}
+	interpreter.Scope.DefineVariable(Variable{
+		Name:      functionName.Value.(string),
+		ValueType: VAR_TYPE_FUNCTION,
+		Value: RuntimeFunction{
+			Name:  functionName.Value.(string),
+			Scope: *scope,
+			Nodes: openTag.Children,
+		},
+	})
+	fmt.Printf("Create function with name %v\n args %v\n", functionName.Value, args)
+	return EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
+}
 func (interpreter *Interpreter) EvaluateOperator(expr lexer.Statement, scope *Scope) EvalValue {
 	if expr.Body == "+" {
 		return interpreter.Sum(scope.Pop(), scope.Pop())
