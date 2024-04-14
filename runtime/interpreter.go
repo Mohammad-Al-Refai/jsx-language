@@ -90,7 +90,6 @@ func (interpreter *Interpreter) Evaluate(statement lexer.Statement, scope *Scope
 }
 
 func (interpreter *Interpreter) EvaluateOpenTag(openTag lexer.OpenTag, scope *Scope) EvalValue {
-	fmt.Printf("Name => %+v\n", openTag.Name)
 	if openTag.Name == "Function" {
 		return interpreter.EvaluateFunctionDeclaration(openTag, &Scope{})
 	}
@@ -160,7 +159,7 @@ func (interpreter *Interpreter) EvaluateParameters(parameters []lexer.Parameter,
 	return params
 }
 func (interpreter *Interpreter) EvaluateIdentifier(name string, scope *Scope) EvalValue {
-	isDefined, variable := interpreter.Scope.GetVariable(name)
+	isDefined, variable := scope.GetVariable(name)
 	if isDefined {
 		return EvalValue{Type: variable.ValueType, Value: variable.Value}
 	}
@@ -178,11 +177,29 @@ func (interpreter *Interpreter) EvaluateNativeFunction(function RuntimeFunctionC
 func (interpreter *Interpreter) EvaluateFunctionCall(function RuntimeFunction, params Parameters) EvalValue {
 	println("Call function ", function.Name)
 	fmt.Printf("Function scope %+v\n", function.Scope)
+	fmt.Printf("params  %+v\n", params)
+	function.Scope = applyParamsToArgs(&function.Scope, params)
 	for _, child := range function.Nodes {
 		interpreter.Evaluate(child, &function.Scope)
 	}
 	return EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
 
+}
+func applyParamsToArgs(scope *Scope, params Parameters) Scope {
+	newVariables := []Variable{}
+	for _, variable := range scope.Variables {
+		fmt.Printf("before Variable %+v\n", scope)
+		matched := params[variable.Name]
+		temp := Variable{}
+		temp.Name = variable.Name
+		temp.Value = matched.Value
+		temp.ValueType = matched.Type
+		newVariables = append(newVariables, temp)
+		fmt.Printf("after Variable %+v\n", scope)
+	}
+	scope.Variables = newVariables
+	fmt.Printf("new Function scope %+v\n", scope)
+	return *scope
 }
 func (interpreter *Interpreter) EvaluateIfStatement(openTag lexer.OpenTag, scope *Scope) EvalValue {
 	params := openTag.Params
@@ -231,7 +248,7 @@ func (interpreter *Interpreter) EvaluateFunctionDeclaration(openTag lexer.OpenTa
 				scope.DefineVariable(Variable{
 					Name:      p.Value.(string),
 					ValueType: p.Type,
-					Value:     EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}})
+					Value:     "undefined"})
 			}
 		}
 	}

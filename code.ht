@@ -1,8 +1,8 @@
 
 
   <App>
-    <Function id={"SayHi"} args={"name","age"}>
+    <Function id={"SayHi"} args={"name"}>
         </Print value={ "Hi " name + }>
     </Function>
-    </SayHi name={"mohammad"} age={20}>
+   </SayHi name={"mohammad"} age={20}>
 </App>
