@@ -69,6 +69,8 @@ func (l *Lexer) Lex() (Position, Token, string) {
 			return l.Pos, CLOSE_OPEN_TAG, ">"
 		case '+':
 			return l.Pos, ADD, "+"
+		case '/':
+			return l.Pos, DIV, "/"
 		case '-':
 			return l.Pos, SUB, "-"
 		case '*':
@@ -95,6 +97,17 @@ func (l *Lexer) Lex() (Position, Token, string) {
 				return l.Pos, EQUAL_EQUAL, "=="
 			} else {
 				return l.Pos, EQUAL, "="
+			}
+		case '!':
+			next, err := l.Reader.Peek(1)
+			if err != nil {
+				if err == io.EOF {
+					l.threwError(fmt.Sprintf("unknown token '%v'", "!"))
+				}
+			}
+			if string(next) == "=" {
+				l.Reader.ReadRune()
+				return l.Pos, NOT_EQUAL, "!="
 			}
 		case '#':
 			// ignore anything after # until detect a new line
@@ -208,7 +221,7 @@ func (l *Lexer) lexQuotation() string {
 		if r == '\n' {
 			l.threwError(fmt.Sprintf(`Missing '"' at %v:%v`, l.Pos.Line, l.Pos.Column))
 		}
-		if unicode.IsLetter(r) || unicode.IsDigit(r) || unicode.IsSpace(r) || unicode.IsSymbol(r) {
+		if unicode.IsLetter(r) || unicode.IsDigit(r) || unicode.IsSpace(r) || unicode.IsSymbol(r) || string(r) == "!" {
 			str = str + string(r)
 		} else if r == '"' {
 			return str

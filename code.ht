@@ -1,1 +1,8 @@
-<If condition={1 + 2}> </If>
+
+ <App>
+    </Let id={"x"} value={30}>
+    </Let id={"y"} value={20}>
+    <If condition={x y greater}>
+    </Print value={ "Yes" }>
+    </If>
+</App>

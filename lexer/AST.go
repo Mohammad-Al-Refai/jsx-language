@@ -36,12 +36,9 @@ type CloseTag struct {
 	Name   string      `json:"name"`
 	Params []Parameter `json:"params"`
 }
-type BinaryExpr struct {
-	Left     Statement
-	Operator Token
-	Right    Statement
+type Expression struct {
+	Statements []Statement
 }
-
 type Statement struct {
 	Kind StatementKind `json:"kind"`
 	Body interface{}   `json:"body"`
@@ -112,32 +109,9 @@ func (ast *AST) Parse() Statement {
 	}
 
 }
-func (ast *AST) ParseBinaryExpr() Statement {
-	left := ast.ParseExpr()
-	if !isOperator(ast.checkForward().Token) {
-		return left
-	}
-	for {
-		ast.next()
-		operator := ast.CurrentToken
-		ast.next()
-		right := ast.ParseBinaryExpr()
-		left = Statement{
-			Kind: K_BINARY_EXPR,
-			Body: BinaryExpr{
-				Left:     left,
-				Operator: operator.Token,
-				Right:    right,
-			},
-		}
-		if !isOperator(ast.CurrentToken.Token) {
-			return left
-		}
-	}
-}
 
 func (ast *AST) ParseOpenTag() Statement {
-	ast.Last = "Parse"
+	ast.Last = "ParseOpenTag"
 	statement := Statement{Kind: K_OPEN_TAG}
 	children := []Statement{}
 	isNotFoundClose := true
@@ -204,15 +178,26 @@ func (ast *AST) ParseParameterValue() Statement {
 		ast.next()
 		statement.Body = ast.ParseParameterValueExpr()
 	}
-	ast.expect(RBRACE, "at the end of parameter")
+	if ast.CurrentToken.Token != RBRACE {
+		ast.threwError("Expect } at the end of parameter")
+	}
 	return statement
-
 }
 
 func (ast *AST) ParseParameterValueExpr() Statement {
-	return ast.ParseBinaryExpr()
+	ast.Last = "ParseParameterValueExpr"
+	stmts := []Statement{}
+	stmt := Statement{Kind: K_EXPRESSION}
+	for ast.CurrentToken.Token != RBRACE {
+		stmts = append(stmts, ast.ParseExpr())
+		ast.next()
+	}
+	stmt.Body = Expression{Statements: stmts}
+	return stmt
 }
+
 func (ast *AST) ParseExpr() Statement {
+	ast.Last = "ParseExpr"
 	token := ast.CurrentToken.Token
 	switch token {
 	case IDENT:
@@ -222,7 +207,10 @@ func (ast *AST) ParseExpr() Statement {
 	case STRING:
 		return ast.ParseString()
 	default:
-		ast.threwError(fmt.Sprintf("Invalid expression '%v' at %v:%v", token, ast.CurrentToken.Pos.Line, ast.CurrentToken.Pos.Column))
+		if isOperator(token) {
+			return ast.ParseOperator()
+		}
+		ast.threwError(fmt.Sprintf("Invalid expression '%v'", token))
 	}
 	return Statement{}
 }
@@ -245,6 +233,12 @@ func (ast *AST) ParseString() Statement {
 func (ast *AST) ParseIdentifier() Statement {
 	stmt := Statement{}
 	stmt.Kind = K_IDENTIFIER
+	stmt.Body = ast.CurrentToken.Literal
+	return stmt
+}
+func (ast *AST) ParseOperator() Statement {
+	stmt := Statement{}
+	stmt.Kind = K_OPERATOR
 	stmt.Body = ast.CurrentToken.Literal
 	return stmt
 }

@@ -2,10 +2,10 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 
 	"m.shebli.refaai/ht/lexer"
+	"m.shebli.refaai/ht/runtime"
 )
 
 func main() {
@@ -15,7 +15,7 @@ func main() {
 		panic(err)
 	}
 	tokens := lex.LoadFileReader(file)
-	fmt.Printf("%+v\n", tokens)
+	// fmt.Printf("%+v\n", tokens)
 	ast := lexer.NewAST(tokens)
 	program := ast.ProduceAST()
 	// fmt.Printf("%+v\n", program)
@@ -24,6 +24,6 @@ func main() {
 		panic(err)
 	}
 	os.WriteFile("AST.json", program_ast, 0777)
-	// interpreter := runtime.NewInterpreter(program)
-	// interpreter.Run()
+	interpreter := runtime.NewInterpreter(program)
+	interpreter.Run()
 }
