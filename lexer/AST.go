@@ -36,10 +36,8 @@ type CloseTag struct {
 	Name   string      `json:"name"`
 	Params []Parameter `json:"params"`
 }
-type BinaryExpr struct {
-	Left     Statement
-	Operator Token
-	Right    Statement
+type Expression struct {
+	Statements []Statement
 }
 type Statement struct {
 	Kind StatementKind `json:"kind"`
@@ -183,39 +181,22 @@ func (ast *AST) ParseParameterValue() Statement {
 		ast.next()
 		statement.Body = ast.ParseParameterValueExpr()
 	}
-	ast.expect(RBRACE, "at the end of parameter")
+	if ast.CurrentToken.Token != RBRACE {
+		ast.threwError("Expect } at the end of parameter")
+	}
 	return statement
-
 }
 
 func (ast *AST) ParseParameterValueExpr() Statement {
 	ast.Last = "ParseParameterValueExpr"
-	if isOperator(ast.checkForward().Token) {
-		return ast.ParseBinaryExpr()
-	}
-	return ast.ParseExpr()
-}
-func (ast *AST) ParseBinaryExpr() Statement {
-	ast.Last = "ParseBinaryExpr"
-	node := ast.ParseExpr()
-	ast.next()
-	for isOperator(ast.CurrentToken.Token) {
-		op := ast.CurrentToken.Token
-		ast.next()
-		node = Statement{
-			Kind: K_BINARY_EXPR,
-			Body: BinaryExpr{
-				Left:     node,
-				Operator: op,
-				Right:    ast.ParseExpr(),
-			},
-		}
-		if !isOperator(ast.checkForward().Token) {
-			return node
-		}
+	stmts := []Statement{}
+	stmt := Statement{Kind: K_EXPRESSION}
+	for ast.CurrentToken.Token != RBRACE {
+		stmts = append(stmts, ast.ParseExpr())
 		ast.next()
 	}
-	return node
+	stmt.Body = Expression{Statements: stmts}
+	return stmt
 }
 
 func (ast *AST) ParseExpr() Statement {
@@ -229,6 +210,9 @@ func (ast *AST) ParseExpr() Statement {
 	case STRING:
 		return ast.ParseString()
 	default:
+		if isOperator(token) {
+			return ast.ParseOperator()
+		}
 		ast.threwError(fmt.Sprintf("Invalid expression '%v'", token))
 	}
 	return Statement{}
@@ -252,6 +236,12 @@ func (ast *AST) ParseString() Statement {
 func (ast *AST) ParseIdentifier() Statement {
 	stmt := Statement{}
 	stmt.Kind = K_IDENTIFIER
+	stmt.Body = ast.CurrentToken.Literal
+	return stmt
+}
+func (ast *AST) ParseOperator() Statement {
+	stmt := Statement{}
+	stmt.Kind = K_OPERATOR
 	stmt.Body = ast.CurrentToken.Literal
 	return stmt
 }

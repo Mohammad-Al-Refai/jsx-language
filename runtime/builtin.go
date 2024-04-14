@@ -9,30 +9,21 @@ func GlobalScope() *Scope {
 		Name:     "Print",
 		Call:     NativePrint,
 	}})
-	globalScope.DefineVariable(Variable{Name: "If", ValueType: VAR_TYPE_NATIVE_FUNCTION, Value: RuntimeFunctionCall{
-		IsNative: true,
-		Name:     "If",
-		Call:     NativeIfStatement,
-	}})
+	// globalScope.DefineVariable(Variable{Name: "If", ValueType: VAR_TYPE_NATIVE_FUNCTION, Value: RuntimeFunctionCall{
+	// 	IsNative: true,
+	// 	Name:     "If",
+	// 	Call:     NativeIfStatement,
+	// }})
 	return &globalScope
 }
-func NativePrint(params Parameters) EvalValue {
-	values := []any{}
-	for _, param := range params {
-		switch param.Type {
-		case VAR_TYPE_STRING:
-			values = append(values, param.Value)
-		case VAR_TYPE_IDENTIFIER:
-			values = append(values, param.Value.(EvalValue).Value)
-		}
-	}
-	fmt.Println(values...)
+func NativePrint(param Parameters) EvalValue {
+	fmt.Println(param["value"].Value)
 	return EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
 }
 
-func NativeIfStatement(params Parameters) EvalValue {
-	if params["condition"].Value.(bool) {
-		return EvalValue{Type: VAR_TYPE_BOOLEAN, Value: "true"}
-	}
-	return EvalValue{Type: VAR_TYPE_BOOLEAN, Value: "false"}
-}
+// func NativeIfStatement(condition EvalValue) EvalValue {
+// 	if condition.Value.(bool) {
+// 		return EvalValue{Type: VAR_TYPE_BOOLEAN, Value: "true"}
+// 	}
+// 	return EvalValue{Type: VAR_TYPE_BOOLEAN, Value: "false"}
+// }
