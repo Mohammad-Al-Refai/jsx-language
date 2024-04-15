@@ -12,6 +12,7 @@ type AST struct {
 	CurrentIndex int
 	IsEnd        bool
 	Last         string
+	Program      Program
 }
 
 func NewAST(tokens []Tokenized) *AST {
@@ -20,6 +21,7 @@ func NewAST(tokens []Tokenized) *AST {
 		CurrentToken: tokens[0],
 		IsEnd:        false,
 		CurrentIndex: 0,
+		Program:      Program{},
 	}
 }
 
@@ -45,7 +47,8 @@ type Statement struct {
 }
 
 type Program struct {
-	Statements []Statement `json:"statements"`
+	Declarations []Statement `json:"declarations"`
+	Statements   []Statement `json:"statements"`
 }
 
 func (ast *AST) expect(token Token, message string) {
@@ -84,12 +87,11 @@ func (ast *AST) checkForward() Tokenized {
 	return ast.Tokens[ast.CurrentIndex+1]
 }
 func (ast *AST) ProduceAST() Program {
-	program := Program{}
 	for {
 		if ast.IsEnd {
-			return program
+			return ast.Program
 		}
-		program.Statements = append(program.Statements, ast.Parse())
+		ast.Program.Statements = append(ast.Program.Statements, ast.Parse())
 		ast.next()
 	}
 }
@@ -125,6 +127,11 @@ func (ast *AST) ParseOpenTag() Statement {
 		newNode := ast.Parse()
 		if ast.CurrentToken.Token == EOF {
 			ast.threwError(fmt.Sprintf("Expect </ %v >", openTag.Name))
+		}
+		if newNode.Kind == K_OPEN_TAG && newNode.Body.(OpenTag).Name == "Function" {
+			ast.Program.Declarations = append(ast.Program.Declarations, newNode)
+			ast.next()
+			continue
 		}
 		if newNode.Kind == K_OPEN_TAG {
 			children = append(children, newNode)
@@ -191,6 +198,9 @@ func (ast *AST) ParseParameterValueExpr() Statement {
 	for ast.CurrentToken.Token != RBRACE {
 		stmts = append(stmts, ast.ParseExpr())
 		ast.next()
+		if ast.CurrentToken.Token == COMMA {
+			ast.next()
+		}
 	}
 	stmt.Body = Expression{Statements: stmts}
 	return stmt

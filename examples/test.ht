@@ -1,0 +1,7 @@
+<App>
+    </Let id={"x"} value={100}>
+    <If condition={true false ==}>
+        </Print value={x}>
+    </If>
+
+</App>

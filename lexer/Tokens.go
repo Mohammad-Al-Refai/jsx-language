@@ -41,6 +41,7 @@ const (
 	//keywords
 	IF
 	LET
+	SET
 	FUNCTION
 	PRINT
 	RETURN
@@ -54,7 +55,7 @@ const (
 
 )
 
-var keywords = map[string]Token{"Let": LET, "If": IF, "Function": FUNCTION, "Print": PRINT, "Return": RETURN, "For": FOR, "greater": GREATER_THAN, "smaller": SMALLER_THAN, "or": OR, "and": AND}
+var keywords = map[string]Token{"Let": LET, "Set": SET, "If": IF, "Function": FUNCTION, "Print": PRINT, "Return": RETURN, "For": FOR, "greater": GREATER_THAN, "smaller": SMALLER_THAN, "or": OR, "and": AND}
 var operators = map[Token]string{ADD: "+", SUB: "-", MUL: "*", DIV: "/", EQUAL_EQUAL: "==", NOT_EQUAL: "!=", OR: "or", AND: "and", GREATER_THAN: "greater", SMALLER_THAN: "smaller"}
 
 var tokens = []string{
@@ -83,6 +84,7 @@ var tokens = []string{
 	RETURN:         "Return",
 	COMMENT:        "#",
 	GREATER_THAN:   "greater",
+	SET:            "Set",
 	SMALLER_THAN:   "smaller",
 	CLOSE_OPEN_TAG: ">",
 	CLOSE_TAG:      "</",
