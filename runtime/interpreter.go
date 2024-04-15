@@ -165,10 +165,14 @@ func (interpreter *Interpreter) EvaluateNativeFunction(function RuntimeNativeFun
 	return function.Call(params)
 }
 func (interpreter *Interpreter) EvaluateFunctionCall(function *RuntimeFunctionCall, params Parameters) *EvalValue {
+	newScope := &Scope{}
+	newScope.Variables = function.Scope.Variables
+	newScope.Stack = function.Scope.Stack
+	function.Scope = newScope
 	interpreter.ApplyParamsToFunction(function, params)
 	interpreter.CallStack.Push(function)
 	for _, child := range function.Nodes {
-		interpreter.Evaluate(child, function.Scope)
+		interpreter.Evaluate(child, newScope)
 	}
 	interpreter.CallStack.Pop()
 	return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
