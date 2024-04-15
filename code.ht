@@ -1,9 +1,11 @@
-
-
-  <App>
-  </SayHi name={"mohammad"} age={20}>
-    <Function id={"SayHi"} args={"name"}>
-        </Print value={ "Hi " name + }>
-          </SayHi name={"mohammad"} age={20}>
+<App>
+    </Let id={"result"} value={0}>
+    <Function id={"Add"} args={"x","y"}>
+        </Set id={"result"} to={x y +}>
+        <If condition={result 10 greater}>
+            </Print value={"yes"}>
+        </If>
     </Function>
+    </Add x={10} y={10}>
+    </Print value={result}>
 </App>

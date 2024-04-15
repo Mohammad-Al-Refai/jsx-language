@@ -12,7 +12,6 @@ const (
 	K_IDENTIFIER
 	K_OPERATOR
 	K_EXPRESSION
-	K_Array
 	K_NUMBER
 	K_STRING
 	K_OBJECT
@@ -30,7 +29,6 @@ var kinds = []string{
 	K_OBJECT:          "Object",
 	K_OPERATOR:        "Operator",
 	K_EXPRESSION:      "Expression",
-	K_Array:           "Array",
 }
 
 func (k StatementKind) String() string {

@@ -34,7 +34,7 @@ type RuntimeFunctionCall struct {
 	Name     string
 	Params   Parameters
 	IsNative bool
-	Call     func(Parameters) EvalValue
+	Call     func(Parameters) *EvalValue
 	Children []lexer.Statement
 }
 type RuntimeIfStatement struct {
