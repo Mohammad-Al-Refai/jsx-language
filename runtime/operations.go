@@ -2,6 +2,7 @@ package runtime
 
 import (
 	"fmt"
+	"strconv"
 
 	"m.shebli.refaai/ht/lexer"
 )
@@ -18,6 +19,9 @@ func (interpreter *Interpreter) EvaluateOperator(expr lexer.Statement, scope *Sc
 	}
 	if expr.Body == "-" {
 		return interpreter.Sub(scope.Pop(), scope.Pop())
+	}
+	if expr.Body == "%" {
+		return interpreter.Mod(scope.Pop(), scope.Pop())
 	}
 	if expr.Body == "greater" {
 		return interpreter.GreaterThan(scope.Pop(), scope.Pop())
@@ -39,10 +43,16 @@ func (interpreter *Interpreter) Sum(x *EvalValue, y *EvalValue) *EvalValue {
 		interpreter.threwError(fmt.Sprintf("expect string or number found %v and %v", y.Type.String(), x.Type.String()))
 	}
 	if x.IsString() && y.IsString() {
-		return &EvalValue{Type: VAR_TYPE_NUMBER, Value: y.Value.(string) + x.Value.(string)}
+		return &EvalValue{Type: VAR_TYPE_STRING, Value: y.Value.(string) + x.Value.(string)}
 	}
 	if x.IsNumber() && y.IsNumber() {
 		return &EvalValue{Type: VAR_TYPE_NUMBER, Value: y.Value.(int) + x.Value.(int)}
+	}
+	if x.IsString() && y.IsNumber() {
+		return &EvalValue{Type: VAR_TYPE_STRING, Value: strconv.Itoa(y.Value.(int)) + x.Value.(string)}
+	}
+	if x.IsNumber() && y.IsString() {
+		return &EvalValue{Type: VAR_TYPE_STRING, Value: y.Value.(string) + strconv.Itoa(x.Value.(int))}
 	}
 	if x.IsNumber() || x.IsString() && y.IsNumber() || y.IsString() {
 		interpreter.threwError(fmt.Sprintf("expect left and right to be number or string found %v and %v", y.Type.String(), x.Type.String()))
@@ -59,13 +69,19 @@ func (interpreter *Interpreter) Div(x *EvalValue, y *EvalValue) *EvalValue {
 	if !(x.IsNumber() || y.IsNumber()) {
 		interpreter.threwError(fmt.Sprintf("expect both  number found %v and %v", y.Type.String(), x.Type.String()))
 	}
-	return &EvalValue{Type: VAR_TYPE_NUMBER, Value: x.Value.(int) / y.Value.(int)}
+	return &EvalValue{Type: VAR_TYPE_NUMBER, Value: y.Value.(int) / x.Value.(int)}
 }
 func (interpreter *Interpreter) Sub(x *EvalValue, y *EvalValue) *EvalValue {
 	if !(x.IsNumber() || y.IsNumber()) {
 		interpreter.threwError(fmt.Sprintf("expect both number found %v and %v", y.Type.String(), x.Type.String()))
 	}
-	return &EvalValue{Type: VAR_TYPE_NUMBER, Value: x.Value.(int) - y.Value.(int)}
+	return &EvalValue{Type: VAR_TYPE_NUMBER, Value: y.Value.(int) - x.Value.(int)}
+}
+func (interpreter *Interpreter) Mod(x *EvalValue, y *EvalValue) *EvalValue {
+	if !(x.IsNumber() || y.IsNumber()) {
+		interpreter.threwError(fmt.Sprintf("expect both number found %v and %v", y.Type.String(), x.Type.String()))
+	}
+	return &EvalValue{Type: VAR_TYPE_NUMBER, Value: y.Value.(int) % x.Value.(int)}
 }
 func (interpreter *Interpreter) GreaterThan(x *EvalValue, y *EvalValue) *EvalValue {
 	if !(x.IsNumber() || y.IsNumber()) {

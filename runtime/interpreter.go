@@ -41,7 +41,9 @@ func (interpreter *Interpreter) threwError(message string) {
 }
 func (interpreter *Interpreter) Setup() {
 	first := interpreter.AST.Statements[0]
-	if first.Kind != lexer.K_OPEN_TAG || (first.Kind == lexer.K_OPEN_TAG && first.Body.(lexer.OpenTag).Name != "App") {
+	if first.Kind != lexer.K_OPEN_TAG ||
+		(first.Kind == lexer.K_OPEN_TAG &&
+			first.Body.(lexer.OpenTag).Name != "App") {
 		interpreter.threwError("Missing <App>")
 		return
 	}
@@ -97,10 +99,17 @@ func (interpreter *Interpreter) EvaluateOpenTag(openTag lexer.OpenTag, scope *Sc
 	if openTag.Name == "If" {
 		return interpreter.EvaluateIfStatement(openTag, scope)
 	}
+	if openTag.Name == "For" {
+		return interpreter.EvaluateForLoop(openTag, scope)
+	}
 	children := openTag.Children
 	for _, child := range children {
 		switch child.Kind {
 		case lexer.K_OPEN_TAG:
+			if child.Body.(lexer.OpenTag).Name == "For" {
+				interpreter.EvaluateForLoop(child.Body.(lexer.OpenTag), scope)
+				continue
+			}
 			if child.Body.(lexer.OpenTag).Name == "If" {
 				interpreter.EvaluateIfStatement(child.Body.(lexer.OpenTag), scope)
 				continue
@@ -120,6 +129,9 @@ func (interpreter *Interpreter) EvaluateCloseTag(closeTag lexer.CloseTag, scope 
 	if isKeyword && name == "Let" {
 		return interpreter.EvaluateLetDeclaration(closeTag, scope)
 	}
+	if isKeyword && name == "Break" {
+		return &EvalValue{Value: "break", Type: VAR_TYPE_NATIVE_FUNCTION}
+	}
 	if isKeyword && name == "Set" {
 		return interpreter.EvaluateSet(closeTag, scope)
 	}
@@ -134,7 +146,6 @@ func (interpreter *Interpreter) EvaluateCloseTag(closeTag lexer.CloseTag, scope 
 		result := interpreter.EvaluateFunctionCall(
 			variable.Value.(*RuntimeFunctionCall),
 			interpreter.EvaluateParameters(closeTag.Params, scope))
-		// variable.Value.(*RuntimeFunctionCall).Scope.Free()
 		return result
 	}
 	interpreter.threwError(fmt.Sprintf("function '%v' is undefined", name))

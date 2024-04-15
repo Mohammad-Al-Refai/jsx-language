@@ -18,15 +18,16 @@ const (
 	COMMA //,
 	GREATER_THAN
 	SMALLER_THAN
-	CLOSE_TAG
-	OPEN_TAG
-	CLOSE_OPEN_TAG
+	CLOSE_TAG      //</
+	OPEN_TAG       //<
+	CLOSE_OPEN_TAG // >
 
 	// Infix ops
 	ADD // +
 	SUB // -
 	MUL // *
 	DIV // /
+	MOD // %
 
 	LPAREN // (
 	LBRACK // [
@@ -45,6 +46,7 @@ const (
 	FUNCTION
 	PRINT
 	RETURN
+	BREAK
 	FOR
 	// operators
 	EQUAL_EQUAL // ==
@@ -55,8 +57,8 @@ const (
 
 )
 
-var keywords = map[string]Token{"Let": LET, "Set": SET, "If": IF, "Function": FUNCTION, "Print": PRINT, "Return": RETURN, "For": FOR, "greater": GREATER_THAN, "smaller": SMALLER_THAN, "or": OR, "and": AND}
-var operators = map[Token]string{ADD: "+", SUB: "-", MUL: "*", DIV: "/", EQUAL_EQUAL: "==", NOT_EQUAL: "!=", OR: "or", AND: "and", GREATER_THAN: "greater", SMALLER_THAN: "smaller"}
+var keywords = map[string]Token{"Let": LET, "Set": SET, "If": IF, "Function": FUNCTION, "Print": PRINT, "Break": BREAK, "Return": RETURN, "For": FOR, "greater": GREATER_THAN, "smaller": SMALLER_THAN, "or": OR, "and": AND}
+var operators = map[Token]string{ADD: "+", SUB: "-", MUL: "*", DIV: "/", EQUAL_EQUAL: "==", MOD: "%", NOT_EQUAL: "!=", OR: "or", AND: "and", GREATER_THAN: "greater", SMALLER_THAN: "smaller"}
 
 var tokens = []string{
 	EOF:     "EOF",
@@ -74,6 +76,7 @@ var tokens = []string{
 	SUB:            "-",
 	MUL:            "*",
 	DIV:            "/",
+	MOD:            "%",
 	EQUAL_EQUAL:    "==",
 	NOT_EQUAL:      "!=",
 	EQUAL:          "=",
@@ -82,6 +85,7 @@ var tokens = []string{
 	FUNCTION:       "Function",
 	FOR:            "For",
 	RETURN:         "Return",
+	BREAK:          "Break",
 	COMMENT:        "#",
 	GREATER_THAN:   "greater",
 	SET:            "Set",
