@@ -34,7 +34,7 @@ interpreted html syntax like programming language
 
 ```html
 <App>
-   <If condition={1>2}>
+   <If condition={1 2 greater}>
     ...
     </If>
 </App>
@@ -45,7 +45,7 @@ interpreted html syntax like programming language
 ```html
 <App>
    <For var={i} from={0} to={10}>
-     <Print value={For.i}/>
+     </Print value={i}>
     </For>
 </App>
 ```
@@ -54,8 +54,8 @@ interpreted html syntax like programming language
 
 ```html
 <App>
-   <Function id={"Sum"} params={x,y}>
-        <Return value={Sum.x+Sum.y}>
+   <Function id={"Sum"} args={"x","y"}>
+        <Return value={x y +}>
     </Function>
 </App>
 ```
@@ -64,6 +64,6 @@ interpreted html syntax like programming language
 
 ```html
 <App>
-   </Print value={</App.Sum x={10} y={20}>}>
+  </Sum x={1} y={2}>
 </App>
 ```

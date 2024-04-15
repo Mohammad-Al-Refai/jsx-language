@@ -8,16 +8,6 @@ import (
 	"m.shebli.refaai/ht/runtime"
 )
 
-// func loop(from int, to int) {
-// 	if from != to {
-// 		loop(from+1, to)
-// 	}
-// 	println(from)
-// }
-// func main() {
-// 	loop(0, 10)
-// }
-
 func main() {
 	lex := lexer.Lexer{}
 	file, err := os.Open("./examples/recursive.ht")
