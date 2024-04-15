@@ -51,7 +51,7 @@ func (interpreter *Interpreter) EvaluateFunctionDeclaration(openTag lexer.OpenTa
 	interpreter.Scope.DefineVariable(Variable{
 		Name:      functionName,
 		ValueType: VAR_TYPE_FUNCTION,
-		Value: &RuntimeFunctionCall{
+		Value: RuntimeFunctionCall{
 			Name:  functionName,
 			Scope: scope,
 			Nodes: openTag.Children,
@@ -71,7 +71,6 @@ func (interpreter *Interpreter) EvaluateIfStatement(openTag lexer.OpenTag, scope
 			interpreter.Evaluate(node, scope)
 		}
 	}
-	scope.Free()
 	return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
 }
 

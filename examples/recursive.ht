@@ -3,14 +3,12 @@
     </Loop from={0} to={10}>
     <Function id={"Loop"} args={"from","to"}>
         <If condition={from to ==}>
-              </Set id={"isDone"} to={true}>
+            </Set id={"isDone"} to={true}>
+            </Print value={"hello"}>
+            </Print value={from}>
         </If>
         <If condition={isDone true !=}>
             </Loop from={from 1 +} to={to}>
         </If>
-        <If condition={isDone true ==}>
-              </Print value={from}>
-        </If>
     </Function>
-
 </App>

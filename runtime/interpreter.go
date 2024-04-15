@@ -122,14 +122,18 @@ func (interpreter *Interpreter) EvaluateCloseTag(closeTag lexer.CloseTag, scope 
 		return interpreter.EvaluateSet(closeTag, scope)
 	}
 	if isInScope && variable.ValueType == VAR_TYPE_NATIVE_FUNCTION {
-		return interpreter.EvaluateNativeFunction(
+		result := interpreter.EvaluateNativeFunction(
 			variable.Value.(RuntimeNativeFunctionCall),
 			interpreter.EvaluateParameters(closeTag.Params, scope))
+		//TODO CLEAR
+		return result
 	}
 	if isInScope && variable.ValueType == VAR_TYPE_FUNCTION {
-		return interpreter.EvaluateFunctionCall(
-			variable.Value.(*RuntimeFunctionCall),
+		result := interpreter.EvaluateFunctionCall(
+			variable.Value.(RuntimeFunctionCall),
 			interpreter.EvaluateParameters(closeTag.Params, scope))
+		variable.Value.(RuntimeFunctionCall).Scope.Free()
+		return result
 	}
 	interpreter.threwError(fmt.Sprintf("function '%v' is undefined", name))
 	return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
@@ -158,15 +162,14 @@ func (interpreter *Interpreter) EvaluateIdentifier(name string, scope *Scope) *E
 func (interpreter *Interpreter) EvaluateNativeFunction(function RuntimeNativeFunctionCall, params Parameters) *EvalValue {
 	return function.Call(params)
 }
-func (interpreter *Interpreter) EvaluateFunctionCall(function *RuntimeFunctionCall, params Parameters) *EvalValue {
+func (interpreter *Interpreter) EvaluateFunctionCall(function RuntimeFunctionCall, params Parameters) *EvalValue {
 	interpreter.ApplyParamsToFunction(function, params)
 	for _, child := range function.Nodes {
 		interpreter.Evaluate(child, function.Scope)
 	}
-	function.Scope.Free()
 	return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
 }
-func (Interpreter *Interpreter) ApplyParamsToFunction(function *RuntimeFunctionCall, params Parameters) {
+func (Interpreter *Interpreter) ApplyParamsToFunction(function RuntimeFunctionCall, params Parameters) {
 	newVariables := []*Variable{}
 	for _, variable := range function.Scope.Variables {
 		matched := params[variable.Name]
