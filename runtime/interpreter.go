@@ -41,7 +41,9 @@ func (interpreter *Interpreter) threwError(message string) {
 }
 func (interpreter *Interpreter) Setup() {
 	first := interpreter.AST.Statements[0]
-	if first.Kind != lexer.K_OPEN_TAG || (first.Kind == lexer.K_OPEN_TAG && first.Body.(lexer.OpenTag).Name != "App") {
+	if first.Kind != lexer.K_OPEN_TAG ||
+		(first.Kind == lexer.K_OPEN_TAG &&
+			first.Body.(lexer.OpenTag).Name != "App") {
 		interpreter.threwError("Missing <App>")
 		return
 	}

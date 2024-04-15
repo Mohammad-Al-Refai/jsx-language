@@ -1,10 +1,11 @@
 <App>
-    </Let id={"sum"} value={0}>
-    <For var={"i"} from={0} to={100}>
-        <If condition={sum 20 ==}>
-            </Break>
+  <For var={"i"} from={0} to={10}>
+        <If condition={i 2 % 0 ==}>
+            </Print value={"Even " i +} >
         </If>
-         </Set id={"sum"} to={i}>
-    </For>
-    </Print value={sum}>
+        <If condition={i 2 % 0 !=}>
+            </Print value={"Odd " i +} >
+        </If>
+  </For>
 </App>
+

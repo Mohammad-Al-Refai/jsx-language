@@ -25,7 +25,7 @@ func NewCallStack() *CallStack {
 }
 func (stack *CallStack) Push(function Call) {
 	if stack.IsFull() {
-		stack.threwError(fmt.Sprintf("Maximum call stack size exceeded for function '%v'", function.Name))
+		stack.threwError(fmt.Sprintf("Maximum call stack size [%+v] exceeded for function '%v'", MAX_CALL_STACK, function.Name))
 	}
 	stack.Calls = append(stack.Calls, function)
 

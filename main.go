@@ -10,7 +10,7 @@ import (
 
 func main() {
 	lex := lexer.Lexer{}
-	file, err := os.Open("./examples/for-loop.ht")
+	file, err := os.Open("./examples/test.ht")
 	if err != nil {
 		panic(err)
 	}

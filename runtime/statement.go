@@ -61,14 +61,18 @@ func (interpreter *Interpreter) EvaluateIfStatement(openTag lexer.OpenTag, scope
 	if len(params) == 0 || params[0].Key != "condition" {
 		interpreter.threwError("Expect 'condition' param for if statement")
 	}
-
 	result := interpreter.EvaluateCondition(params[0], scope)
-	fmt.Printf("IF %+v\n Params %+v\n", result, params)
+	hasBreak := false
 	if result.Value == true {
 		for _, node := range nodes {
-			interpreter.Evaluate(node, scope)
-
+			r := interpreter.Evaluate(node, scope)
+			if r.Value == "break" {
+				hasBreak = true
+			}
 		}
+	}
+	if hasBreak {
+		return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "break"}
 	}
 	return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
 }
@@ -123,13 +127,13 @@ func (interpreter *Interpreter) EvaluateForLoop(openTag lexer.OpenTag, scope *Sc
 	nodes := openTag.Children
 
 	if len(params) == 0 || params[0].Key != "var" {
-		interpreter.threwError("Expect 'var' param for the loop")
+		interpreter.threwError("Expect 'var' param for 'For'")
 	}
 	if len(params) == 1 || params[1].Key != "from" {
-		interpreter.threwError("Expect 'from' param for if statement")
+		interpreter.threwError("Expect 'from' param for 'For'")
 	}
 	if len(params) == 2 || params[2].Key != "to" {
-		interpreter.threwError("Expect 'from' param for if statement")
+		interpreter.threwError("Expect 'to' param for 'For'")
 	}
 
 	newScope := &Scope{}
@@ -137,23 +141,28 @@ func (interpreter *Interpreter) EvaluateForLoop(openTag lexer.OpenTag, scope *Sc
 
 	varParmName := result["var"].Value.(string)
 	initValue := result["from"].Value
-	// to := result["to"]
+	to := result["to"].Value
 	newScope.DefineVariable(Variable{
 		Name:      varParmName,
 		Value:     initValue,
 		ValueType: VAR_TYPE_NUMBER,
 	})
 	_, initiator := newScope.GetVariable(varParmName)
-	isNotDone := true
-	for isNotDone {
-		newScope.UpdateVariable(initiator.Name, initiator.Value.(int)+1)
+	hasBreak := false
+	for {
+		if initiator.Value == to || hasBreak {
+			break
+		}
+
 		for _, node := range nodes {
 			r := interpreter.Evaluate(node, newScope)
-			fmt.Printf("R %+v\n Node %+v\n", r, node.Kind)
-			// if isHasBreak {
-			// 	isNotDone = false
-			// }
+			if r.Value == "break" {
+				hasBreak = true
+				break
+			}
 		}
+		newScope.UpdateVariable(initiator.Name, initiator.Value.(int)+1)
+
 	}
 
 	return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
