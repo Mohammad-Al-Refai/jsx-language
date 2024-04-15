@@ -127,6 +127,9 @@ func (interpreter *Interpreter) EvaluateCloseTag(closeTag lexer.CloseTag, scope 
 	if isKeyword && name == "Let" {
 		return interpreter.EvaluateLetDeclaration(closeTag, scope)
 	}
+	if isKeyword && name == "Break" {
+		return &EvalValue{Value: "break", Type: VAR_TYPE_NATIVE_FUNCTION}
+	}
 	if isKeyword && name == "Set" {
 		return interpreter.EvaluateSet(closeTag, scope)
 	}
@@ -141,7 +144,6 @@ func (interpreter *Interpreter) EvaluateCloseTag(closeTag lexer.CloseTag, scope 
 		result := interpreter.EvaluateFunctionCall(
 			variable.Value.(*RuntimeFunctionCall),
 			interpreter.EvaluateParameters(closeTag.Params, scope))
-		// variable.Value.(*RuntimeFunctionCall).Scope.Free()
 		return result
 	}
 	interpreter.threwError(fmt.Sprintf("function '%v' is undefined", name))

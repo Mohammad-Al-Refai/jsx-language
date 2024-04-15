@@ -61,10 +61,13 @@ func (interpreter *Interpreter) EvaluateIfStatement(openTag lexer.OpenTag, scope
 	if len(params) == 0 || params[0].Key != "condition" {
 		interpreter.threwError("Expect 'condition' param for if statement")
 	}
+
 	result := interpreter.EvaluateCondition(params[0], scope)
+	fmt.Printf("IF %+v\n Params %+v\n", result, params)
 	if result.Value == true {
 		for _, node := range nodes {
 			interpreter.Evaluate(node, scope)
+
 		}
 	}
 	return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
@@ -134,17 +137,22 @@ func (interpreter *Interpreter) EvaluateForLoop(openTag lexer.OpenTag, scope *Sc
 
 	varParmName := result["var"].Value.(string)
 	initValue := result["from"].Value
-	to := result["to"]
+	// to := result["to"]
 	newScope.DefineVariable(Variable{
 		Name:      varParmName,
 		Value:     initValue,
 		ValueType: VAR_TYPE_NUMBER,
 	})
 	_, initiator := newScope.GetVariable(varParmName)
-	for initiator.Value != to.Value {
+	isNotDone := true
+	for isNotDone {
 		newScope.UpdateVariable(initiator.Name, initiator.Value.(int)+1)
 		for _, node := range nodes {
-			interpreter.Evaluate(node, newScope)
+			r := interpreter.Evaluate(node, newScope)
+			fmt.Printf("R %+v\n Node %+v\n", r, node.Kind)
+			// if isHasBreak {
+			// 	isNotDone = false
+			// }
 		}
 	}
 
