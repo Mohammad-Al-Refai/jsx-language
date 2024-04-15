@@ -15,6 +15,7 @@ type Interpreter struct {
 	IsFinish         bool
 	CurrentStatement lexer.Statement
 	CurrentIndex     int
+	CallStack        *CallStack
 }
 
 func (interpreter *Interpreter) next() {
@@ -31,6 +32,7 @@ func NewInterpreter(ast lexer.Program) *Interpreter {
 		Scope:            GlobalScope(),
 		CurrentStatement: ast.Statements[0],
 		CurrentIndex:     0,
+		CallStack:        NewCallStack(),
 	}
 }
 func (interpreter *Interpreter) threwError(message string) {
@@ -130,9 +132,9 @@ func (interpreter *Interpreter) EvaluateCloseTag(closeTag lexer.CloseTag, scope 
 	}
 	if isInScope && variable.ValueType == VAR_TYPE_FUNCTION {
 		result := interpreter.EvaluateFunctionCall(
-			variable.Value.(RuntimeFunctionCall),
+			variable.Value.(*RuntimeFunctionCall),
 			interpreter.EvaluateParameters(closeTag.Params, scope))
-		variable.Value.(RuntimeFunctionCall).Scope.Free()
+		// variable.Value.(*RuntimeFunctionCall).Scope.Free()
 		return result
 	}
 	interpreter.threwError(fmt.Sprintf("function '%v' is undefined", name))
@@ -162,14 +164,17 @@ func (interpreter *Interpreter) EvaluateIdentifier(name string, scope *Scope) *E
 func (interpreter *Interpreter) EvaluateNativeFunction(function RuntimeNativeFunctionCall, params Parameters) *EvalValue {
 	return function.Call(params)
 }
-func (interpreter *Interpreter) EvaluateFunctionCall(function RuntimeFunctionCall, params Parameters) *EvalValue {
+func (interpreter *Interpreter) EvaluateFunctionCall(function *RuntimeFunctionCall, params Parameters) *EvalValue {
 	interpreter.ApplyParamsToFunction(function, params)
+	interpreter.CallStack.Push(function)
 	for _, child := range function.Nodes {
 		interpreter.Evaluate(child, function.Scope)
 	}
+	interpreter.CallStack.Pop()
 	return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
 }
-func (Interpreter *Interpreter) ApplyParamsToFunction(function RuntimeFunctionCall, params Parameters) {
+
+func (Interpreter *Interpreter) ApplyParamsToFunction(function *RuntimeFunctionCall, params Parameters) {
 	newVariables := []*Variable{}
 	for _, variable := range function.Scope.Variables {
 		matched := params[variable.Name]

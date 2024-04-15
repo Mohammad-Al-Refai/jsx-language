@@ -44,25 +44,21 @@ func (interpreter *Interpreter) EvaluateFunctionDeclaration(openTag lexer.OpenTa
 			}
 		}
 	}
-	// fmt.Printf("Function Name => %+v\n", functionName)
-	// fmt.Printf("Function Args => %+v\n", args)
-	// fmt.Printf("Function Children => %+v\n", len(openTag.Children))
-
+	function := NewRuntimeFunctionCall()
+	function.Name = functionName
+	function.Scope = scope
+	function.Nodes = openTag.Children
 	interpreter.Scope.DefineVariable(Variable{
 		Name:      functionName,
 		ValueType: VAR_TYPE_FUNCTION,
-		Value: RuntimeFunctionCall{
-			Name:  functionName,
-			Scope: scope,
-			Nodes: openTag.Children,
-		},
+		Value:     function,
 	})
 	return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
 }
 func (interpreter *Interpreter) EvaluateIfStatement(openTag lexer.OpenTag, scope *Scope) *EvalValue {
 	params := openTag.Params
 	nodes := openTag.Children
-	if len(params) == 0 {
+	if len(params) == 0 || params[0].Key != "condition" {
 		interpreter.threwError("Expect 'condition' param for if statement")
 	}
 	result := interpreter.EvaluateCondition(params[0], scope)

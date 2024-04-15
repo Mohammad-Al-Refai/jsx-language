@@ -6,10 +6,7 @@ type Scope struct {
 }
 
 func (scope *Scope) Push(value *EvalValue) {
-	// fmt.Printf("PUSH %+v\n", value)
 	scope.Stack = append(scope.Stack, value)
-	// fmt.Printf("NEW STACK %+v\n", scope.Stack)
-
 }
 func (scope *Scope) Pop() *EvalValue {
 	if len(scope.Stack) == 0 {
@@ -17,9 +14,6 @@ func (scope *Scope) Pop() *EvalValue {
 	}
 	last := scope.Stack[len(scope.Stack)-1]
 	scope.Stack = scope.Stack[:len(scope.Stack)-1]
-	// fmt.Printf("POP %+v\n", last)
-
-	// fmt.Printf("NEW STACK %+v\n", scope.Stack)
 	return last
 }
 func (scope *Scope) DefineVariable(variable Variable) bool {

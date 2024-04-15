@@ -1,5 +1,5 @@
 <App>
-    </Let id={"x"} value={10}>
+    </Let id={"x"} value={100}>
     <If condition={true false ==}>
         </Print value={x}>
     </If>

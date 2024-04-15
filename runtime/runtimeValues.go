@@ -26,10 +26,21 @@ func (ev *EvalValue) ExpectAnyOf(t []VarType) bool {
 }
 
 type RuntimeFunctionCall struct {
-	Name  string
-	Scope *Scope
-	Nodes []lexer.Statement
+	Name       string
+	Parameters Parameters
+	Scope      *Scope
+	Nodes      []lexer.Statement
 }
+
+func NewRuntimeFunctionCall() *RuntimeFunctionCall {
+	return &RuntimeFunctionCall{
+		Scope:      &Scope{},
+		Nodes:      []lexer.Statement{},
+		Name:       "",
+		Parameters: make(Parameters),
+	}
+}
+
 type RuntimeNativeFunctionCall struct {
 	Name     string
 	Params   Parameters

@@ -1,14 +1,9 @@
 <App>
-    </Let id={"isDone"} value={false}>
     </Loop from={0} to={10}>
     <Function id={"Loop"} args={"from","to"}>
-        <If condition={from to ==}>
-            </Set id={"isDone"} to={true}>
-            </Print value={"hello"}>
-            </Print value={from}>
-        </If>
-        <If condition={isDone true !=}>
+         <If condition={from to !=}>
             </Loop from={from 1 +} to={to}>
         </If>
+        </Print value={from}>
     </Function>
 </App>
