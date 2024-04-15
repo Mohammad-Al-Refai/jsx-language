@@ -44,7 +44,6 @@ func (interpreter *Interpreter) Setup() {
 		return
 	}
 	if interpreter.AST.Declarations != nil || len(interpreter.AST.Declarations) != 0 {
-		println("Found declarations")
 		declares := interpreter.AST.Declarations
 		statements := interpreter.AST.Statements
 		newStatements := []lexer.Statement{}
@@ -93,6 +92,9 @@ func (interpreter *Interpreter) EvaluateOpenTag(openTag lexer.OpenTag, scope *Sc
 	if openTag.Name == "Function" {
 		return interpreter.EvaluateFunctionDeclaration(openTag, &Scope{})
 	}
+	if openTag.Name == "If" {
+		return interpreter.EvaluateIfStatement(openTag, scope)
+	}
 	children := openTag.Children
 	for _, child := range children {
 		switch child.Kind {
@@ -113,7 +115,6 @@ func (interpreter *Interpreter) EvaluateCloseTag(closeTag lexer.CloseTag, scope 
 	name := closeTag.Name
 	isKeyword, _ := lexer.IsKeyword(name)
 	isInScope, variable := interpreter.Scope.GetVariable(name)
-	fmt.Printf("Current variable %+v isInScope %+v\n", name, isInScope)
 	if isKeyword && name == "Let" {
 		return interpreter.EvaluateLetDeclaration(closeTag, scope)
 	}
@@ -122,62 +123,15 @@ func (interpreter *Interpreter) EvaluateCloseTag(closeTag lexer.CloseTag, scope 
 	}
 	if isInScope && variable.ValueType == VAR_TYPE_NATIVE_FUNCTION {
 		return interpreter.EvaluateNativeFunction(
-			variable.Value.(RuntimeFunctionCall),
+			variable.Value.(RuntimeNativeFunctionCall),
 			interpreter.EvaluateParameters(closeTag.Params, scope))
 	}
 	if isInScope && variable.ValueType == VAR_TYPE_FUNCTION {
-		println("Call function ", name)
 		return interpreter.EvaluateFunctionCall(
-			variable.Value.(RuntimeFunction),
+			variable.Value.(*RuntimeFunctionCall),
 			interpreter.EvaluateParameters(closeTag.Params, scope))
 	}
 	interpreter.threwError(fmt.Sprintf("function '%v' is undefined", name))
-	return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
-}
-
-func (interpreter *Interpreter) EvaluateSet(closeTag lexer.CloseTag, scope *Scope) *EvalValue {
-	params := closeTag.Params
-	evaluatedParams := interpreter.EvaluateParameters(params, scope)
-	id, isId := evaluatedParams["id"]
-	to, isTo := evaluatedParams["to"]
-
-	if !isTo {
-		interpreter.threwError("Expect 'to' param")
-		return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
-	}
-	if !isId {
-		interpreter.threwError("Expect 'id' param")
-		return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
-	}
-	isOk, _ := scope.UpdateVariable(id.Value.(string), to.Value)
-	if !isOk {
-		isOk, _ := interpreter.Scope.UpdateVariable(id.Value.(string), to.Value)
-		if !isOk {
-			interpreter.threwError(fmt.Sprintf("%v is undeclared", id))
-		}
-	}
-	return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
-}
-
-func (interpreter *Interpreter) EvaluateLetDeclaration(closeTag lexer.CloseTag, scope *Scope) *EvalValue {
-	params := closeTag.Params
-	evaluatedParams := interpreter.EvaluateParameters(params, scope)
-	id, isId := evaluatedParams["id"]
-	value, isValue := evaluatedParams["value"]
-
-	if !isValue {
-		interpreter.threwError("Expect 'value' param")
-		return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
-	}
-	if !isId {
-		interpreter.threwError("Expect 'id' param")
-		return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
-	}
-
-	isOk := interpreter.Scope.DefineVariable(Variable{Name: id.Value.(string), Value: value.Value, ValueType: value.Type})
-	if !isOk {
-		interpreter.threwError(fmt.Sprintf("%v is already declared", id))
-	}
 	return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
 }
 
@@ -189,7 +143,6 @@ func (interpreter *Interpreter) EvaluateParameters(parameters []lexer.Parameter,
 	return params
 }
 func (interpreter *Interpreter) EvaluateIdentifier(name string, scope *Scope) *EvalValue {
-	fmt.Printf("Found id => %v\n", name)
 	localIsDefined, local_variable := scope.GetVariable(name)
 	globalScopeIsDefined, global_variable := interpreter.Scope.GetVariable(name)
 	if localIsDefined {
@@ -202,23 +155,18 @@ func (interpreter *Interpreter) EvaluateIdentifier(name string, scope *Scope) *E
 	return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
 }
 
-func (interpreter *Interpreter) EvaluateNativeIfStatement(function RuntimeFunctionCall, params Parameters) *EvalValue {
+func (interpreter *Interpreter) EvaluateNativeFunction(function RuntimeNativeFunctionCall, params Parameters) *EvalValue {
 	return function.Call(params)
 }
-
-func (interpreter *Interpreter) EvaluateNativeFunction(function RuntimeFunctionCall, params Parameters) *EvalValue {
-	return function.Call(params)
-}
-func (interpreter *Interpreter) EvaluateFunctionCall(function RuntimeFunction, params Parameters) *EvalValue {
-	interpreter.ApplyParamsToFunction(&function, params)
+func (interpreter *Interpreter) EvaluateFunctionCall(function *RuntimeFunctionCall, params Parameters) *EvalValue {
+	interpreter.ApplyParamsToFunction(function, params)
 	for _, child := range function.Nodes {
-		interpreter.Evaluate(child, &function.Scope)
+		interpreter.Evaluate(child, function.Scope)
 	}
 	function.Scope.Free()
 	return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
-
 }
-func (Interpreter *Interpreter) ApplyParamsToFunction(function *RuntimeFunction, params Parameters) {
+func (Interpreter *Interpreter) ApplyParamsToFunction(function *RuntimeFunctionCall, params Parameters) {
 	newVariables := []*Variable{}
 	for _, variable := range function.Scope.Variables {
 		matched := params[variable.Name]
@@ -232,98 +180,4 @@ func (Interpreter *Interpreter) ApplyParamsToFunction(function *RuntimeFunction,
 		newVariables = append(newVariables, &temp)
 	}
 	function.Scope.Variables = newVariables
-}
-func (interpreter *Interpreter) EvaluateIfStatement(openTag lexer.OpenTag, scope *Scope) *EvalValue {
-	params := openTag.Params
-	nodes := openTag.Children
-	if len(params) == 0 {
-		interpreter.threwError("Expect 'condition' param for if statement")
-	}
-	result := interpreter.EvaluateCondition(params[0], scope)
-	if result.Value == true {
-		for _, node := range nodes {
-			interpreter.Evaluate(node, scope)
-		}
-	}
-	scope.Free()
-	return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
-}
-func (interpreter *Interpreter) EvaluateCondition(param lexer.Parameter, scope *Scope) *EvalValue {
-	if param.Key != "condition" {
-		interpreter.threwError(fmt.Sprintf("Expect 'condition' param for if statement found '%v'", param.Key))
-	}
-	return interpreter.EvaluateExpression(param.Value.Body.(lexer.Statement).Body.(lexer.Expression), scope)
-}
-
-func (interpreter *Interpreter) EvaluateExpression(expr lexer.Expression, scope *Scope) *EvalValue {
-	for _, ex := range expr.Statements {
-		if ex.Kind == lexer.K_OPERATOR {
-			scope.Push(interpreter.EvaluateOperator(ex, scope))
-			continue
-		}
-		scope.Push(interpreter.Evaluate(ex, scope))
-	}
-	return scope.Pop()
-}
-func (interpreter *Interpreter) EvaluateFunctionDeclaration(openTag lexer.OpenTag, scope *Scope) *EvalValue {
-	if len(openTag.Params) == 0 || openTag.Params[0].Key != "id" {
-		interpreter.threwError("Missing 'id' param for function deceleration")
-		return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
-	}
-	params := openTag.Params
-	functionName := interpreter.Evaluate(params[0].Value, scope).Value.(string)
-	args := Parameters{}
-	if len(params) > 1 {
-		if params[1].Key == "args" {
-			for _, expr := range params[1].Value.Body.(lexer.Statement).Body.(lexer.Expression).Statements {
-				p := interpreter.Evaluate(expr, scope)
-				args[p.Value.(string)] = p
-				scope.DefineVariable(Variable{
-					Name:      p.Value.(string),
-					ValueType: p.Type,
-					Value:     "undefined"})
-			}
-		}
-	}
-	fmt.Printf("Function Name => %+v\n", functionName)
-	fmt.Printf("Function Args => %+v\n", args)
-	fmt.Printf("Function Children => %+v\n", len(openTag.Children))
-
-	interpreter.Scope.DefineVariable(Variable{
-		Name:      functionName,
-		ValueType: VAR_TYPE_FUNCTION,
-		Value: RuntimeFunction{
-			Name:  functionName,
-			Scope: *scope,
-			Nodes: openTag.Children,
-		},
-	})
-	return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
-}
-func (interpreter *Interpreter) EvaluateOperator(expr lexer.Statement, scope *Scope) *EvalValue {
-	if expr.Body == "+" {
-		return interpreter.Sum(scope.Pop(), scope.Pop())
-	}
-	if expr.Body == "*" {
-		return interpreter.Mul(scope.Pop(), scope.Pop())
-	}
-	if expr.Body == "/" {
-		return interpreter.Div(scope.Pop(), scope.Pop())
-	}
-	if expr.Body == "-" {
-		return interpreter.Sub(scope.Pop(), scope.Pop())
-	}
-	if expr.Body == "greater" {
-		return interpreter.GreaterThan(scope.Pop(), scope.Pop())
-	}
-	if expr.Body == "smaller" {
-		return interpreter.SmallerThan(scope.Pop(), scope.Pop())
-	}
-	if expr.Body == "==" {
-		return interpreter.Equal(scope.Pop(), scope.Pop())
-	}
-	if expr.Body == "!=" {
-		return interpreter.NotEqual(scope.Pop(), scope.Pop())
-	}
-	return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
 }

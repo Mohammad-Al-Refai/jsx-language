@@ -2,10 +2,12 @@
     </Let id={"result"} value={0}>
     <Function id={"Add"} args={"x","y"}>
         </Set id={"result"} to={x y +}>
-        <If condition={result 10 greater}>
-            </Print value={"yes"}>
-        </If>
+        </Double x={result}>
+    </Function>
+     <Function id={"Double"} args={"x"}>
+        </Set id={"result"} to={x 2 *}>
     </Function>
     </Add x={10} y={10}>
     </Print value={result}>
 </App>
+

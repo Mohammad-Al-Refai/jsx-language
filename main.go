@@ -10,7 +10,7 @@ import (
 
 func main() {
 	lex := lexer.Lexer{}
-	file, err := os.Open("code.ht")
+	file, err := os.Open("./examples/recursive.ht")
 	if err != nil {
 		panic(err)
 	}
