@@ -97,10 +97,17 @@ func (interpreter *Interpreter) EvaluateOpenTag(openTag lexer.OpenTag, scope *Sc
 	if openTag.Name == "If" {
 		return interpreter.EvaluateIfStatement(openTag, scope)
 	}
+	if openTag.Name == "For" {
+		return interpreter.EvaluateForLoop(openTag, scope)
+	}
 	children := openTag.Children
 	for _, child := range children {
 		switch child.Kind {
 		case lexer.K_OPEN_TAG:
+			if child.Body.(lexer.OpenTag).Name == "For" {
+				interpreter.EvaluateForLoop(child.Body.(lexer.OpenTag), scope)
+				continue
+			}
 			if child.Body.(lexer.OpenTag).Name == "If" {
 				interpreter.EvaluateIfStatement(child.Body.(lexer.OpenTag), scope)
 				continue
