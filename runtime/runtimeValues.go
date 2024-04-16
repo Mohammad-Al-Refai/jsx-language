@@ -5,10 +5,14 @@ import (
 )
 
 type EvalValue struct {
-	Value interface{}
-	Type  VarType
+	Value       interface{}
+	Type        VarType
+	ShouldBreak bool
 }
 
+func NewUndefinedValue() *EvalValue {
+	return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: ""}
+}
 func (ev *EvalValue) IsNumber() bool {
 	return ev.Type == VAR_TYPE_NUMBER
 }

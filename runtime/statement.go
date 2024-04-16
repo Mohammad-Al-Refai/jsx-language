@@ -26,7 +26,7 @@ func (interpreter *Interpreter) EvaluateExpression(expr lexer.Expression, scope 
 func (interpreter *Interpreter) EvaluateFunctionDeclaration(openTag lexer.OpenTag, scope *Scope) *EvalValue {
 	if len(openTag.Params) == 0 || openTag.Params[0].Key != "id" {
 		interpreter.threwError("Missing 'id' param for function deceleration")
-		return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
+		return NewUndefinedValue()
 	}
 	params := openTag.Params
 	functionName := interpreter.Evaluate(params[0].Value, scope).Value.(string)
@@ -52,7 +52,7 @@ func (interpreter *Interpreter) EvaluateFunctionDeclaration(openTag lexer.OpenTa
 		ValueType: VAR_TYPE_FUNCTION,
 		Value:     function,
 	})
-	return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
+	return NewUndefinedValue()
 }
 func (interpreter *Interpreter) EvaluateIfStatement(openTag lexer.OpenTag, scope *Scope) *EvalValue {
 	params := openTag.Params
@@ -65,15 +65,15 @@ func (interpreter *Interpreter) EvaluateIfStatement(openTag lexer.OpenTag, scope
 	if result.Value == true {
 		for _, node := range nodes {
 			r := interpreter.Evaluate(node, scope)
-			if r.Value == "break" {
+			if r.ShouldBreak {
 				hasBreak = true
 			}
 		}
 	}
 	if hasBreak {
-		return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "break"}
+		return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "", ShouldBreak: true}
 	}
-	return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
+	return NewUndefinedValue()
 }
 
 func (interpreter *Interpreter) EvaluateSet(closeTag lexer.CloseTag, scope *Scope) *EvalValue {
@@ -84,11 +84,11 @@ func (interpreter *Interpreter) EvaluateSet(closeTag lexer.CloseTag, scope *Scop
 
 	if !isTo {
 		interpreter.threwError("Expect 'to' param")
-		return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
+		return NewUndefinedValue()
 	}
 	if !isId {
 		interpreter.threwError("Expect 'id' param")
-		return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
+		return NewUndefinedValue()
 	}
 	isOk, _ := scope.UpdateVariable(id.Value.(string), to.Value)
 	if !isOk {
@@ -97,7 +97,7 @@ func (interpreter *Interpreter) EvaluateSet(closeTag lexer.CloseTag, scope *Scop
 			interpreter.threwError(fmt.Sprintf("%v is undeclared", id))
 		}
 	}
-	return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
+	return NewUndefinedValue()
 }
 
 func (interpreter *Interpreter) EvaluateLetDeclaration(closeTag lexer.CloseTag, scope *Scope) *EvalValue {
@@ -108,18 +108,18 @@ func (interpreter *Interpreter) EvaluateLetDeclaration(closeTag lexer.CloseTag, 
 
 	if !isValue {
 		interpreter.threwError("Expect 'value' param")
-		return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
+		return NewUndefinedValue()
 	}
 	if !isId {
 		interpreter.threwError("Expect 'id' param")
-		return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
+		return NewUndefinedValue()
 	}
 
 	isOk := interpreter.Scope.DefineVariable(Variable{Name: id.Value.(string), Value: value.Value, ValueType: value.Type})
 	if !isOk {
 		interpreter.threwError(fmt.Sprintf("%v is already declared", id))
 	}
-	return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
+	return NewUndefinedValue()
 }
 func (interpreter *Interpreter) EvaluateForLoop(openTag lexer.OpenTag, scope *Scope) *EvalValue {
 	params := openTag.Params
@@ -133,9 +133,7 @@ func (interpreter *Interpreter) EvaluateForLoop(openTag lexer.OpenTag, scope *Sc
 	if len(params) == 2 || params[2].Key != "to" {
 		interpreter.threwError("Expect 'to' param for 'For'")
 	}
-
 	result := interpreter.EvaluateParameters(params, scope)
-
 	varParmName := result["var"].Value.(string)
 	initValue := result["from"].Value
 	to := result["to"].Value
@@ -150,17 +148,14 @@ func (interpreter *Interpreter) EvaluateForLoop(openTag lexer.OpenTag, scope *Sc
 		if initiator.Value == to || hasBreak {
 			break
 		}
-
 		for _, node := range nodes {
 			r := interpreter.Evaluate(node, scope)
-			if r.Value == "break" {
+			if r.ShouldBreak {
 				hasBreak = true
 				break
 			}
 		}
 		scope.UpdateVariable(initiator.Name, initiator.Value.(int)+1)
-
 	}
-
-	return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
+	return NewUndefinedValue()
 }

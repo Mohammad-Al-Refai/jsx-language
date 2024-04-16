@@ -19,5 +19,5 @@ func GlobalScope() *Scope {
 }
 func NativePrint(param Parameters) *EvalValue {
 	fmt.Println(param["value"].Value)
-	return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
+	return NewUndefinedValue()
 }

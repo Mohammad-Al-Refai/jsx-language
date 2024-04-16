@@ -13,7 +13,7 @@ import (
 func main() {
 	start := time.Now()
 	lex := lexer.Lexer{}
-	file, err := os.Open("./examples/for-loop-break.ht")
+	file, err := os.Open("./examples/recursive.ht")
 	if err != nil {
 		panic(err)
 	}

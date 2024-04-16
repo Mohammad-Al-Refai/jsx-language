@@ -22,7 +22,7 @@ func (scope *Scope) Push(value *EvalValue) {
 }
 func (scope *Scope) Pop() *EvalValue {
 	if len(scope.Stack) == 0 {
-		return &EvalValue{Type: VAR_TYPE_UNDEFINED}
+		return NewUndefinedValue()
 	}
 	last := scope.Stack[len(scope.Stack)-1]
 	scope.Stack = scope.Stack[:len(scope.Stack)-1]

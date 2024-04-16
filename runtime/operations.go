@@ -35,7 +35,7 @@ func (interpreter *Interpreter) EvaluateOperator(expr lexer.Statement, scope *Sc
 	if expr.Body == "!=" {
 		return interpreter.NotEqual(scope.Pop(), scope.Pop())
 	}
-	return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
+	return NewUndefinedValue()
 }
 
 func (interpreter *Interpreter) Sum(x *EvalValue, y *EvalValue) *EvalValue {

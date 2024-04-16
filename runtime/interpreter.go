@@ -86,10 +86,10 @@ func (interpreter *Interpreter) Evaluate(statement lexer.Statement, scope *Scope
 	case lexer.K_STRING:
 		return &EvalValue{Type: VAR_TYPE_STRING, Value: statement.Body.(string)}
 	case lexer.K_EOF:
-		return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
+		return NewUndefinedValue()
 	default:
 		println(statement.Kind.String(), " unknown")
-		return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
+		return NewUndefinedValue()
 	}
 }
 
@@ -131,7 +131,7 @@ func (interpreter *Interpreter) EvaluateOpenTag(openTag lexer.OpenTag, scope *Sc
 			interpreter.EvaluateCloseTag(child.Body.(lexer.CloseTag), scope)
 		}
 	}
-	return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
+	return NewUndefinedValue()
 }
 
 func (interpreter *Interpreter) EvaluateCloseTag(closeTag lexer.CloseTag, scope *Scope) *EvalValue {
@@ -142,7 +142,7 @@ func (interpreter *Interpreter) EvaluateCloseTag(closeTag lexer.CloseTag, scope 
 		return interpreter.EvaluateLetDeclaration(closeTag, scope)
 	}
 	if isKeyword && name == "Break" {
-		return &EvalValue{Value: "break", Type: VAR_TYPE_NATIVE_FUNCTION}
+		return &EvalValue{ShouldBreak: true}
 	}
 	if isKeyword && name == "Set" {
 		return interpreter.EvaluateSet(closeTag, scope)
@@ -161,7 +161,7 @@ func (interpreter *Interpreter) EvaluateCloseTag(closeTag lexer.CloseTag, scope 
 		return result
 	}
 	interpreter.threwError(fmt.Sprintf("function '%v' is undefined", name))
-	return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
+	return NewUndefinedValue()
 }
 
 func (interpreter *Interpreter) EvaluateParameters(parameters []lexer.Parameter, scope *Scope) Parameters {
@@ -202,7 +202,7 @@ func (interpreter *Interpreter) EvaluateFunctionCall(function *RuntimeFunctionCa
 		interpreter.Evaluate(child, newScope)
 	}
 	interpreter.CallStack.Pop()
-	return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
+	return NewUndefinedValue()
 }
 
 func (Interpreter *Interpreter) ApplyParamsToFunction(function *RuntimeFunctionCall, params Parameters) {
