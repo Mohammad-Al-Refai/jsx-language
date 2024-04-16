@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"m.shebli.refaai/ht/lexer"
+	scopename "m.shebli.refaai/ht/runtime/scopeName"
 )
 
 type Parameters map[string]*EvalValue
@@ -93,28 +94,39 @@ func (interpreter *Interpreter) Evaluate(statement lexer.Statement, scope *Scope
 }
 
 func (interpreter *Interpreter) EvaluateOpenTag(openTag lexer.OpenTag, scope *Scope) *EvalValue {
+
 	if openTag.Name == "Function" {
-		return interpreter.EvaluateFunctionDeclaration(openTag, &Scope{})
+		newScope := scope.SetNext(&Scope{})
+		newScope.Name = scopename.FUNCTION
+		return interpreter.EvaluateFunctionDeclaration(openTag, newScope)
 	}
 	if openTag.Name == "If" {
-		return interpreter.EvaluateIfStatement(openTag, scope)
+		newScope := scope.SetNext(&Scope{})
+		newScope.Name = scopename.IF
+		return interpreter.EvaluateIfStatement(openTag, newScope)
 	}
 	if openTag.Name == "For" {
-		return interpreter.EvaluateForLoop(openTag, scope)
+		newScope := scope.SetNext(&Scope{})
+		newScope.Name = scopename.FOR
+		return interpreter.EvaluateForLoop(openTag, newScope)
 	}
 	children := openTag.Children
 	for _, child := range children {
 		switch child.Kind {
 		case lexer.K_OPEN_TAG:
 			if child.Body.(lexer.OpenTag).Name == "For" {
-				interpreter.EvaluateForLoop(child.Body.(lexer.OpenTag), scope)
+				newScope := scope.SetNext(&Scope{})
+				newScope.Name = scopename.FOR
+				interpreter.EvaluateForLoop(child.Body.(lexer.OpenTag), newScope)
 				continue
 			}
 			if child.Body.(lexer.OpenTag).Name == "If" {
-				interpreter.EvaluateIfStatement(child.Body.(lexer.OpenTag), scope)
+				newScope := scope.SetNext(&Scope{})
+				newScope.Name = scopename.IF
+				interpreter.EvaluateIfStatement(child.Body.(lexer.OpenTag), newScope)
 				continue
 			}
-			interpreter.EvaluateOpenTag(child.Body.(lexer.OpenTag), &Scope{})
+			interpreter.threwError(fmt.Sprintf("%v is unknown tag", child.Body.(lexer.OpenTag).Name))
 		case lexer.K_CLOSE_TAG:
 			interpreter.EvaluateCloseTag(child.Body.(lexer.CloseTag), scope)
 		}
@@ -160,18 +172,22 @@ func (interpreter *Interpreter) EvaluateParameters(parameters []lexer.Parameter,
 	return params
 }
 func (interpreter *Interpreter) EvaluateIdentifier(name string, scope *Scope) *EvalValue {
-	localIsDefined, local_variable := scope.GetVariable(name)
-	globalScopeIsDefined, global_variable := interpreter.Scope.GetVariable(name)
-	if localIsDefined {
-		return &EvalValue{Type: local_variable.ValueType, Value: local_variable.Value}
+	current := scope
+	_, r := current.GetVariable(name)
+	variable := r
+	for variable.ValueType == VAR_TYPE_UNDEFINED {
+		if current == nil {
+			interpreter.threwError(fmt.Sprintf("'%v' is undefined", name))
+		}
+		_, x := current.GetVariable(name)
+		variable = x
+		if current.Name == scopename.APP {
+			interpreter.threwError(fmt.Sprintf("'%v' is undefined", name))
+		}
+		current = current.Previous
 	}
-	if globalScopeIsDefined {
-		return &EvalValue{Type: global_variable.ValueType, Value: global_variable.Value}
-	}
-	interpreter.threwError(fmt.Sprintf("'%v' is undefined", name))
-	return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
+	return &EvalValue{Value: variable.Value, Type: variable.ValueType}
 }
-
 func (interpreter *Interpreter) EvaluateNativeFunction(function RuntimeNativeFunctionCall, params Parameters) *EvalValue {
 	return function.Call(params)
 }

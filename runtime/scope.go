@@ -1,10 +1,22 @@
 package runtime
 
+import (
+	scopename "m.shebli.refaai/ht/runtime/scopeName"
+)
+
 type Scope struct {
+	Name      scopename.ScopeName
+	Next      *Scope
+	Previous  *Scope
 	Variables []*Variable
 	Stack     []*EvalValue
 }
 
+func (scope *Scope) SetNext(new *Scope) *Scope {
+	scope.Next = new
+	new.Previous = scope
+	return scope.Next
+}
 func (scope *Scope) Push(value *EvalValue) {
 	scope.Stack = append(scope.Stack, value)
 }

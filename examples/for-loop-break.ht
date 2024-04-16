@@ -1,0 +1,10 @@
+<App>
+  </Let id={"v"} value={0}>
+  <For var={"i"} from={0} to={100}>
+        <If condition={i 50 ==}>
+            </Set id={"v"} to={i}>
+            </Break>
+        </If>
+  </For>
+  </Print value={v} >
+</App>

@@ -1,0 +1,33 @@
+{
+  "name": "App",
+  "next": {
+    "name": "For",
+    "next": {
+      "name": "If",
+      "next": null,
+      "previous": null,
+      "variables": null,
+      "stack": null
+    },
+    "previous": null,
+    "variables": [{ "name": "i", "value": 0, "valueType": "number" }],
+    "stack": []
+  },
+  "previous": null,
+  "variables": [
+    {
+      "name": "Print",
+      "value": {
+        "name": "Print",
+        "params": null,
+        "isnNative": true,
+        "children": null
+      },
+      "valueType": "n-function"
+    },
+    { "name": "true", "value": true, "valueType": "boolean" },
+    { "name": "false", "value": false, "valueType": "boolean" },
+    { "name": "v", "value": 0, "valueType": "number" }
+  ],
+  "stack": []
+}

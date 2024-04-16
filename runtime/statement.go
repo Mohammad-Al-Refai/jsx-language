@@ -23,7 +23,6 @@ func (interpreter *Interpreter) EvaluateExpression(expr lexer.Expression, scope 
 	}
 	return scope.Pop()
 }
-
 func (interpreter *Interpreter) EvaluateFunctionDeclaration(openTag lexer.OpenTag, scope *Scope) *EvalValue {
 	if len(openTag.Params) == 0 || openTag.Params[0].Key != "id" {
 		interpreter.threwError("Missing 'id' param for function deceleration")
@@ -125,7 +124,6 @@ func (interpreter *Interpreter) EvaluateLetDeclaration(closeTag lexer.CloseTag, 
 func (interpreter *Interpreter) EvaluateForLoop(openTag lexer.OpenTag, scope *Scope) *EvalValue {
 	params := openTag.Params
 	nodes := openTag.Children
-
 	if len(params) == 0 || params[0].Key != "var" {
 		interpreter.threwError("Expect 'var' param for 'For'")
 	}
@@ -136,18 +134,17 @@ func (interpreter *Interpreter) EvaluateForLoop(openTag lexer.OpenTag, scope *Sc
 		interpreter.threwError("Expect 'to' param for 'For'")
 	}
 
-	newScope := &Scope{}
-	result := interpreter.EvaluateParameters(params, newScope)
+	result := interpreter.EvaluateParameters(params, scope)
 
 	varParmName := result["var"].Value.(string)
 	initValue := result["from"].Value
 	to := result["to"].Value
-	newScope.DefineVariable(Variable{
+	scope.DefineVariable(Variable{
 		Name:      varParmName,
 		Value:     initValue,
 		ValueType: VAR_TYPE_NUMBER,
 	})
-	_, initiator := newScope.GetVariable(varParmName)
+	_, initiator := scope.GetVariable(varParmName)
 	hasBreak := false
 	for {
 		if initiator.Value == to || hasBreak {
@@ -155,13 +152,13 @@ func (interpreter *Interpreter) EvaluateForLoop(openTag lexer.OpenTag, scope *Sc
 		}
 
 		for _, node := range nodes {
-			r := interpreter.Evaluate(node, newScope)
+			r := interpreter.Evaluate(node, scope)
 			if r.Value == "break" {
 				hasBreak = true
 				break
 			}
 		}
-		newScope.UpdateVariable(initiator.Name, initiator.Value.(int)+1)
+		scope.UpdateVariable(initiator.Name, initiator.Value.(int)+1)
 
 	}
 

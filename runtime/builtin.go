@@ -1,9 +1,13 @@
 package runtime
 
-import "fmt"
+import (
+	"fmt"
+
+	scopename "m.shebli.refaai/ht/runtime/scopeName"
+)
 
 func GlobalScope() *Scope {
-	globalScope := Scope{}
+	globalScope := Scope{Name: scopename.APP}
 	globalScope.DefineVariable(Variable{Name: "Print", ValueType: VAR_TYPE_NATIVE_FUNCTION, Value: RuntimeNativeFunctionCall{
 		IsNative: true,
 		Name:     "Print",

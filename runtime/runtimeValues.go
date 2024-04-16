@@ -1,6 +1,8 @@
 package runtime
 
-import "m.shebli.refaai/ht/lexer"
+import (
+	"m.shebli.refaai/ht/lexer"
+)
 
 type EvalValue struct {
 	Value interface{}
