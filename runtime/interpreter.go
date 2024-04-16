@@ -173,18 +173,19 @@ func (interpreter *Interpreter) EvaluateParameters(parameters []lexer.Parameter,
 }
 func (interpreter *Interpreter) EvaluateIdentifier(name string, scope *Scope) *EvalValue {
 	current := scope
-	_, r := current.GetVariable(name)
-	variable := r
+	_, found := current.GetVariable(name)
+	variable := found
 	for variable.ValueType == VAR_TYPE_UNDEFINED {
+		current = current.Previous
 		if current == nil {
 			interpreter.threwError(fmt.Sprintf("'%v' is undefined", name))
 		}
-		_, x := current.GetVariable(name)
-		variable = x
-		if current.Name == scopename.APP {
+		_, found := current.GetVariable(name)
+		variable = found
+		if current.Name == scopename.APP && found.IsUndefined() {
 			interpreter.threwError(fmt.Sprintf("'%v' is undefined", name))
 		}
-		current = current.Previous
+
 	}
 	return &EvalValue{Value: variable.Value, Type: variable.ValueType}
 }

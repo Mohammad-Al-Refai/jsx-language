@@ -33,3 +33,7 @@ type Variable struct {
 	Value     interface{}
 	ValueType VarType
 }
+
+func (v *Variable) IsUndefined() bool {
+	return v.ValueType == VAR_TYPE_UNDEFINED
+}
