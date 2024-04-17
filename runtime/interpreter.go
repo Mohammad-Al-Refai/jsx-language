@@ -142,6 +142,7 @@ func (interpreter *Interpreter) EvaluateCloseTag(closeTag lexer.CloseTag, scope 
 		return interpreter.EvaluateLetDeclaration(closeTag, scope)
 	}
 	if isKeyword && name == "Break" {
+		interpreter.CheckBreakLegality(scope)
 		return &EvalValue{ShouldBreak: true}
 	}
 	if isKeyword && name == "Set" {
@@ -220,4 +221,15 @@ func (Interpreter *Interpreter) ApplyParamsToFunction(function *RuntimeFunctionC
 		newVariables = append(newVariables, &temp)
 	}
 	function.Scope.Variables = newVariables
+}
+
+func (Interpreter *Interpreter) CheckBreakLegality(scope *Scope) {
+	current := scope
+	for current.Name != scopename.FOR {
+		if current.Name == scopename.APP {
+			Interpreter.threwError(fmt.Sprintf("Illegal break statement found in %+v scope", current.Name.String()))
+			return
+		}
+		current = current.Previous
+	}
 }
