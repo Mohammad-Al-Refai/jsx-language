@@ -204,3 +204,21 @@ func (Interpreter *Interpreter) ApplyParamsToFunction(function *RuntimeFunctionC
 	}
 	function.Scope.Variables = newVariables
 }
+
+func (interpreter *Interpreter) EvaluateCondition(param lexer.Parameter, scope *Scope) *EvalValue {
+	if param.Key != "condition" {
+		interpreter.threwError(fmt.Sprintf("Expect 'condition' param for if statement found '%v'", param.Key))
+	}
+	return interpreter.EvaluateExpression(param.Value.Body.(lexer.Statement).Body.(lexer.Expression), scope)
+}
+
+func (interpreter *Interpreter) EvaluateExpression(expr lexer.Expression, scope *Scope) *EvalValue {
+	for _, ex := range expr.Statements {
+		if ex.Kind == lexer.K_OPERATOR {
+			scope.Push(interpreter.EvaluateOperator(ex, scope))
+			continue
+		}
+		scope.Push(interpreter.Evaluate(ex, scope))
+	}
+	return scope.Pop()
+}
