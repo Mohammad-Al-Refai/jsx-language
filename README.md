@@ -24,12 +24,6 @@ interpreted html syntax like programming language
 </App>
 ```
 
-```html
-<App>
-   </Let id={"names"} value={[App.name,"A"]}>
-</App>
-```
-
 ## If
 
 ```html
@@ -44,7 +38,7 @@ interpreted html syntax like programming language
 
 ```html
 <App>
-   <For var={i} from={0} to={10}>
+   <For var={"i"} from={0} to={10}>
      </Print value={i}>
     </For>
 </App>
