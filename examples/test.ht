@@ -1,9 +1,3 @@
 <App>
-   </Let id={"x"} value={1}>
-   <Function id={"Hi"}>
-      </Let id={"x"} value={2}>
-      </Print value={x}>
-   </Function>
-   </Hi>
-   </Print value={x}>
+   </Let id={"x"} value={[1,"hi",3,4]}>
 </App>

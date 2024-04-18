@@ -69,6 +69,10 @@ func (l *Lexer) Lex() (Position, Token, string) {
 			return l.Pos, CLOSE_OPEN_TAG, ">"
 		case '+':
 			return l.Pos, ADD, "+"
+		case '[':
+			return l.Pos, LBRACK, "["
+		case ']':
+			return l.Pos, RBRACK, "]"
 		case '%':
 			return l.Pos, MOD, "%"
 		case '/':

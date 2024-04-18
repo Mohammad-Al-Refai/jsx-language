@@ -31,6 +31,7 @@ const (
 
 	LPAREN // (
 	LBRACK // [
+	RBRACK // ]
 	LBRACE // {
 
 	RPAREN  // )
@@ -61,39 +62,42 @@ var keywords = map[string]Token{"Let": LET, "Set": SET, "If": IF, "Function": FU
 var operators = map[Token]string{ADD: "+", SUB: "-", MUL: "*", DIV: "/", EQUAL_EQUAL: "==", MOD: "%", NOT_EQUAL: "!=", OR: "or", AND: "and", GREATER_THAN: "greater", SMALLER_THAN: "smaller"}
 
 var tokens = []string{
-	EOF:     "EOF",
-	ILLEGAL: "ILLEGAL",
-	IDENT:   "IDENT",
-	INT:     "INT",
-	COMMA:   ",",
-	LBRACE:  "{",
-	RBRACE:  "}",
-	LPAREN:  "(",
-	RPAREN:  ")",
-	STRING:  "STRING",
-	// Infix ops
-	ADD:            "+",
-	SUB:            "-",
-	MUL:            "*",
-	DIV:            "/",
-	MOD:            "%",
-	EQUAL_EQUAL:    "==",
-	NOT_EQUAL:      "!=",
-	EQUAL:          "=",
-	IF:             "If",
-	LET:            "Let",
-	FUNCTION:       "Function",
-	FOR:            "For",
-	RETURN:         "Return",
-	BREAK:          "Break",
-	COMMENT:        "#",
-	GREATER_THAN:   "greater",
-	SET:            "Set",
-	SMALLER_THAN:   "smaller",
+	EOF:            "EOF",
+	ILLEGAL:        "ILLEGAL",
+	IDENT:          "IDENT",
+	INT:            "INT",
 	CLOSE_OPEN_TAG: ">",
 	CLOSE_TAG:      "</",
-	OR:             "or",
-	AND:            "and",
+	COMMA:          ",",
+	LBRACE:         "{",
+	RBRACE:         "}",
+	LPAREN:         "(",
+	RPAREN:         ")",
+	LBRACK:         "[",
+	RBRACK:         "]",
+	STRING:         "STRING",
+	// Infix ops
+	ADD:          "+",
+	SUB:          "-",
+	MUL:          "*",
+	DIV:          "/",
+	MOD:          "%",
+	EQUAL_EQUAL:  "==",
+	NOT_EQUAL:    "!=",
+	EQUAL:        "=",
+	IF:           "If",
+	LET:          "Let",
+	FUNCTION:     "Function",
+	FOR:          "For",
+	RETURN:       "Return",
+	BREAK:        "Break",
+	COMMENT:      "#",
+	GREATER_THAN: "greater",
+	SET:          "Set",
+	SMALLER_THAN: "smaller",
+
+	OR:  "or",
+	AND: "and",
 }
 
 func (t Token) String() string {

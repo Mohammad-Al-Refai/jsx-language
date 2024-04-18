@@ -34,6 +34,9 @@ type OpenTag struct {
 	Params   []Parameter `json:"params"`
 	Children []Statement `json:"children"`
 }
+type Array struct {
+	Items []Statement `json:"Items"`
+}
 type CloseTag struct {
 	Name   string      `json:"name"`
 	Params []Parameter `json:"params"`
@@ -203,6 +206,11 @@ func (ast *AST) ParseParameterValueExpr() Statement {
 	ast.Last = "ParseParameterValueExpr"
 	stmts := []Statement{}
 	stmt := Statement{Kind: K_EXPRESSION}
+	if ast.CurrentToken.Token == LBRACK {
+		ast.next()
+		stmt = ast.ParseArray()
+		return stmt
+	}
 	for ast.CurrentToken.Token != RBRACE {
 		stmts = append(stmts, ast.ParseExpr())
 		ast.next()
@@ -212,6 +220,23 @@ func (ast *AST) ParseParameterValueExpr() Statement {
 	}
 	stmt.Body = Expression{Statements: stmts}
 	return stmt
+}
+func (ast *AST) ParseArray() Statement {
+	ast.Last = "ParseArray"
+	statement := Statement{Kind: K_ARRAY}
+	items := []Statement{}
+	for ast.CurrentToken.Token != RBRACK {
+		items = append(items, ast.ParseExpr())
+		ast.next()
+		if ast.CurrentToken.Token == COMMA {
+			ast.next()
+		}
+	}
+	ast.next()
+	statement.Body = Array{
+		Items: items,
+	}
+	return statement
 }
 
 func (ast *AST) ParseExpr() Statement {
