@@ -75,6 +75,10 @@ func (ast *AST) threwError(message string) {
 		ast.CurrentToken.Pos.Column)))
 	os.Exit(1)
 }
+func (ast *AST) threwIllegalError(message string) {
+	fmt.Printf("[ParserError Illegal]: %+v\n", message)
+	os.Exit(1)
+}
 func (ast *AST) next() {
 	ast.CurrentIndex++
 	if ast.CurrentIndex < len(ast.Tokens) {
@@ -128,10 +132,14 @@ func (ast *AST) ParseOpenTag() Statement {
 		if ast.CurrentToken.Token == EOF {
 			ast.threwError(fmt.Sprintf("Expect </ %v >", openTag.Name))
 		}
-		if newNode.Kind == K_OPEN_TAG && newNode.Body.(OpenTag).Name == "Function" {
+		if newNode.Kind == K_OPEN_TAG && openTag.Name == "App" && newNode.Body.(OpenTag).Name == "Function" {
 			ast.Program.Declarations = append(ast.Program.Declarations, newNode)
 			ast.next()
 			continue
+		}
+		if newNode.Kind == K_OPEN_TAG && openTag.Name != "App" && newNode.Body.(OpenTag).Name == "Function" {
+			ast.threwIllegalError("Can't declare function outside App scope!")
+			return statement
 		}
 		if newNode.Kind == K_OPEN_TAG {
 			children = append(children, newNode)
