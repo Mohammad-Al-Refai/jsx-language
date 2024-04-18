@@ -1,3 +1,8 @@
 <App>
-   </Let id={"x"} value={Array.Index.X.Y.Z}>
+   </Let id={"data"} value={[1,2,"hello",false,423,23,62]}>
+   <For var={"i"} from={0} to={data array.length() 1 - }>
+      </Print value={data array.pop()}>
+      </Print value={data}>
+
+   </For>
 </App>

@@ -80,6 +80,8 @@ func (interpreter *Interpreter) Evaluate(statement lexer.Statement, scope *Scope
 		return interpreter.EvaluateIdentifier(statement.Body.(string), scope, false)
 	case lexer.K_ARRAY:
 		return interpreter.EvaluateArray(statement.Body.(lexer.Array), scope)
+	case lexer.K_OBJECT:
+		return interpreter.EvaluateObjectMemberCall(statement.Body.(lexer.Object), scope)
 	case lexer.K_EXPRESSION:
 		return interpreter.EvaluateExpression(statement.Body.(lexer.Expression), scope)
 	case lexer.K_NUMBER:
@@ -231,18 +233,33 @@ func (interpreter *Interpreter) EvaluateCondition(param lexer.Parameter, scope *
 func (interpreter *Interpreter) EvaluateExpression(expr lexer.Expression, scope *Scope) *EvalValue {
 	for _, ex := range expr.Statements {
 		if ex.Kind == lexer.K_OPERATOR {
-			scope.Push(interpreter.EvaluateOperator(ex, scope))
+			scope.Stack.Push(interpreter.EvaluateOperator(ex, scope))
 			continue
 		}
-		scope.Push(interpreter.Evaluate(ex, scope))
+		scope.Stack.Push(interpreter.Evaluate(ex, scope))
 	}
-	return scope.Pop()
+	return scope.Stack.Pop()
 }
 
 func (interpreter *Interpreter) EvaluateArray(expr lexer.Array, scope *Scope) *EvalValue {
-	array := ArrayRuntime{}
+	array := &ArrayRuntime{}
 	for _, ex := range expr.Items {
 		array.Push(interpreter.Evaluate(ex, scope))
 	}
 	return &EvalValue{Value: array, Type: VAR_TYPE_ARRAY}
+}
+
+func (interpreter *Interpreter) EvaluateObjectMemberCall(obj lexer.Object, scope *Scope) *EvalValue {
+	isFound, object := interpreter.Scope.GetObject(obj.Name)
+	if !isFound {
+		interpreter.threwError(fmt.Sprintf("'%v' is not defined", obj.Name))
+		return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
+	}
+	memberName := obj.Members[0]
+	isMember, member := object.GetObjectMember(memberName)
+	if !isMember {
+		interpreter.threwError(fmt.Sprintf("'%v' is not a member of object '%v'", memberName, obj.Name))
+		return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
+	}
+	return member.Call(&scope.Stack)
 }

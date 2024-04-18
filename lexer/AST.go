@@ -248,15 +248,25 @@ func (ast *AST) ParseObject() Statement {
 	objName := ast.CurrentToken.Literal
 	ast.next()
 	members := []string{}
-	isNotDone := true
-	for isNotDone {
-		if ast.CurrentToken.Token != DOT {
+
+	for ast.CurrentToken.Token != RPAREN {
+		if ast.CurrentToken.Token == RBRACE {
+			ast.threwError("Expect ')'")
+		}
+		if ast.CurrentToken.Token == DOT {
+			ast.next()
+		}
+		if ast.CurrentToken.Token == IDENT {
 			members = append(members, ast.CurrentToken.Literal)
+			ast.next()
+		}
+		if ast.CurrentToken.Token == LPAREN {
+			ast.next()
+		}
+		if ast.CurrentToken.Token == RPAREN {
+			break
 		}
 		ast.next()
-		if ast.checkForward().Token == RBRACE {
-			isNotDone = false
-		}
 	}
 	statement.Body = Object{
 		Name:    objName,
