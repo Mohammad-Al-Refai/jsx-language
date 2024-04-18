@@ -78,6 +78,8 @@ func (interpreter *Interpreter) Evaluate(statement lexer.Statement, scope *Scope
 		return interpreter.Evaluate(statement.Body.(lexer.Statement), scope)
 	case lexer.K_IDENTIFIER:
 		return interpreter.EvaluateIdentifier(statement.Body.(string), scope, false)
+	case lexer.K_ARRAY:
+		return interpreter.EvaluateArray(statement.Body.(lexer.Array), scope)
 	case lexer.K_EXPRESSION:
 		return interpreter.EvaluateExpression(statement.Body.(lexer.Expression), scope)
 	case lexer.K_NUMBER:
@@ -235,4 +237,12 @@ func (interpreter *Interpreter) EvaluateExpression(expr lexer.Expression, scope 
 		scope.Push(interpreter.Evaluate(ex, scope))
 	}
 	return scope.Pop()
+}
+
+func (interpreter *Interpreter) EvaluateArray(expr lexer.Array, scope *Scope) *EvalValue {
+	array := ArrayRuntime{}
+	for _, ex := range expr.Items {
+		array.Push(interpreter.Evaluate(ex, scope))
+	}
+	return &EvalValue{Value: array, Type: VAR_TYPE_ARRAY}
 }

@@ -16,6 +16,9 @@ func (ev *EvalValue) IsString() bool {
 func (ev *EvalValue) IsBoolean() bool {
 	return ev.Type == VAR_TYPE_BOOLEAN
 }
+func (ev *EvalValue) IsArray() bool {
+	return ev.Type == VAR_TYPE_ARRAY
+}
 func (ev *EvalValue) ExpectAnyOf(t []VarType) bool {
 	for _, ty := range t {
 		if ev.Type == ty {
