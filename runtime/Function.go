@@ -1,6 +1,8 @@
 package runtime
 
-import "m.shebli.refaai/ht/lexer"
+import (
+	"m.shebli.refaai/ht/lexer"
+)
 
 func (interpreter *Interpreter) EvaluateFunctionDeclaration(openTag lexer.OpenTag, scope *Scope) *EvalValue {
 	if len(openTag.Params) == 0 || openTag.Params[0].Key != "id" {

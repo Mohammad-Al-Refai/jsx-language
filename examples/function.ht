@@ -1,8 +1,5 @@
 <App>
    <Function id={"SayHi"} args={"name"}>
-          <Function id={"SayHi"} args={"name"}>
-               </Print value={"Hi " name +}>
-          </Function>
           </Print value={"Hi " name +}>
    </Function>
    </SayHi name={"Mohammad"}>
