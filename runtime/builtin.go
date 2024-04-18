@@ -4,16 +4,20 @@ import "fmt"
 
 func GlobalScope() *Scope {
 	globalScope := Scope{}
-	globalScope.DefineVariable(Variable{Name: "Print", ValueType: VAR_TYPE_NATIVE_FUNCTION, Value: RuntimeNativeFunctionCall{
-		IsNative: true,
-		Name:     "Print",
-		Call:     NativePrint,
-	}})
+	globalScope.DefineFunction(Print(Parameters{"value": &EvalValue{}}))
 	globalScope.DefineVariable(Variable{Name: "true", ValueType: VAR_TYPE_BOOLEAN, Value: true})
 	globalScope.DefineVariable(Variable{Name: "false", ValueType: VAR_TYPE_BOOLEAN, Value: false})
 	return &globalScope
 }
-func NativePrint(param Parameters) *EvalValue {
-	fmt.Println(param["value"].Value)
-	return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
+func Print(param Parameters) *RuntimeFunctionCall {
+	return &RuntimeFunctionCall{
+		IsNative: true,
+		Name:     "Print",
+		Scope:    &Scope{},
+		Call: func(p Parameters) *EvalValue {
+			value := p["value"]
+			fmt.Println(value.Value)
+			return &EvalValue{}
+		},
+	}
 }

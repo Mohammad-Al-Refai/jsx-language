@@ -11,7 +11,6 @@ func (interpreter *Interpreter) EvaluateSet(closeTag lexer.CloseTag, scope *Scop
 	evaluatedParams := interpreter.EvaluateParameters(params, scope)
 	id, isId := evaluatedParams["id"]
 	to, isTo := evaluatedParams["to"]
-
 	if !isTo {
 		interpreter.threwError("Expect 'to' param")
 		return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}

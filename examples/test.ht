@@ -1,3 +1,9 @@
 <App>
-   </Print value={"Hello " "World" +}>
+   </Let id={"x"} value={1}>
+   <Function id={"Hi"}>
+      </Let id={"x"} value={2}>
+      </Print value={x}>
+   </Function>
+   </Hi>
+   </Print value={x}>
 </App>

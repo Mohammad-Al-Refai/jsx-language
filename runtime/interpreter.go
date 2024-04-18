@@ -77,7 +77,7 @@ func (interpreter *Interpreter) Evaluate(statement lexer.Statement, scope *Scope
 	case lexer.K_PARAMETER_VALUE:
 		return interpreter.Evaluate(statement.Body.(lexer.Statement), scope)
 	case lexer.K_IDENTIFIER:
-		return interpreter.EvaluateIdentifier(statement.Body.(string), scope)
+		return interpreter.EvaluateIdentifier(statement.Body.(string), scope, false)
 	case lexer.K_EXPRESSION:
 		return interpreter.EvaluateExpression(statement.Body.(lexer.Expression), scope)
 	case lexer.K_NUMBER:
@@ -93,28 +93,29 @@ func (interpreter *Interpreter) Evaluate(statement lexer.Statement, scope *Scope
 }
 
 func (interpreter *Interpreter) EvaluateOpenTag(openTag lexer.OpenTag, scope *Scope) *EvalValue {
+	newScope := &Scope{Prev: scope}
 	if openTag.Name == "Function" {
-		return interpreter.EvaluateFunctionDeclaration(openTag, &Scope{})
+		return interpreter.EvaluateFunctionDeclaration(openTag, newScope)
 	}
 	if openTag.Name == "If" {
-		return interpreter.EvaluateIfStatement(openTag, scope)
+		return interpreter.EvaluateIfStatement(openTag, newScope)
 	}
 	if openTag.Name == "For" {
-		return interpreter.EvaluateForLoop(openTag, scope)
+		return interpreter.EvaluateForLoop(openTag, newScope)
 	}
 	children := openTag.Children
 	for _, child := range children {
 		switch child.Kind {
 		case lexer.K_OPEN_TAG:
 			if child.Body.(lexer.OpenTag).Name == "For" {
-				interpreter.EvaluateForLoop(child.Body.(lexer.OpenTag), scope)
+				interpreter.EvaluateForLoop(child.Body.(lexer.OpenTag), newScope)
 				continue
 			}
 			if child.Body.(lexer.OpenTag).Name == "If" {
-				interpreter.EvaluateIfStatement(child.Body.(lexer.OpenTag), scope)
+				interpreter.EvaluateIfStatement(child.Body.(lexer.OpenTag), newScope)
 				continue
 			}
-			interpreter.EvaluateOpenTag(child.Body.(lexer.OpenTag), &Scope{})
+			interpreter.threwError(fmt.Sprintf("tag '%v' is undefined", openTag.Name))
 		case lexer.K_CLOSE_TAG:
 			interpreter.EvaluateCloseTag(child.Body.(lexer.CloseTag), scope)
 		}
@@ -124,27 +125,25 @@ func (interpreter *Interpreter) EvaluateOpenTag(openTag lexer.OpenTag, scope *Sc
 
 func (interpreter *Interpreter) EvaluateCloseTag(closeTag lexer.CloseTag, scope *Scope) *EvalValue {
 	name := closeTag.Name
-	isKeyword, _ := lexer.IsKeyword(name)
-	isInScope, variable := interpreter.Scope.GetVariable(name)
-	if isKeyword && name == "Let" {
+	if name == "Let" {
 		return interpreter.EvaluateLetDeclaration(closeTag, scope)
 	}
-	if isKeyword && name == "Break" {
+	if name == "Break" {
 		return &EvalValue{Value: "break", Type: VAR_TYPE_NATIVE_FUNCTION}
 	}
-	if isKeyword && name == "Set" {
+	if name == "Set" {
 		return interpreter.EvaluateSet(closeTag, scope)
 	}
-	if isInScope && variable.ValueType == VAR_TYPE_NATIVE_FUNCTION {
-		result := interpreter.EvaluateNativeFunction(
-			variable.Value.(RuntimeNativeFunctionCall),
+	result := interpreter.EvaluateIdentifier(name, scope, true)
+	if result.Type == VAR_TYPE_NATIVE_FUNCTION {
+		result := interpreter.EvaluateFunctionCall(
+			result.Value.(*RuntimeFunctionCall),
 			interpreter.EvaluateParameters(closeTag.Params, scope))
-		//TODO CLEAR
 		return result
 	}
-	if isInScope && variable.ValueType == VAR_TYPE_FUNCTION {
+	if result.Type == VAR_TYPE_FUNCTION {
 		result := interpreter.EvaluateFunctionCall(
-			variable.Value.(*RuntimeFunctionCall),
+			result.Value.(*RuntimeFunctionCall),
 			interpreter.EvaluateParameters(closeTag.Params, scope))
 		return result
 	}
@@ -159,28 +158,40 @@ func (interpreter *Interpreter) EvaluateParameters(parameters []lexer.Parameter,
 	}
 	return params
 }
-func (interpreter *Interpreter) EvaluateIdentifier(name string, scope *Scope) *EvalValue {
-	localIsDefined, local_variable := scope.GetVariable(name)
-	globalScopeIsDefined, global_variable := interpreter.Scope.GetVariable(name)
-	if localIsDefined {
-		return &EvalValue{Type: local_variable.ValueType, Value: local_variable.Value}
+func (interpreter *Interpreter) EvaluateIdentifier(name string, scope *Scope, isFunction bool) *EvalValue {
+	if scope == nil {
+		interpreter.threwError(fmt.Sprintf("'%v' is not defined", name))
+		return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
 	}
-	if globalScopeIsDefined {
-		return &EvalValue{Type: global_variable.ValueType, Value: global_variable.Value}
-	}
-	interpreter.threwError(fmt.Sprintf("'%v' is undefined", name))
-	return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
-}
 
-func (interpreter *Interpreter) EvaluateNativeFunction(function RuntimeNativeFunctionCall, params Parameters) *EvalValue {
-	return function.Call(params)
+	if isFunction {
+		isFoundInCurrentScope, currentScopeFunction := interpreter.Scope.GetFunction(name)
+		if isFoundInCurrentScope {
+			if currentScopeFunction.IsNative {
+				return &EvalValue{Value: currentScopeFunction, Type: VAR_TYPE_NATIVE_FUNCTION}
+			}
+			return &EvalValue{Value: currentScopeFunction, Type: VAR_TYPE_FUNCTION}
+		}
+	}
+	isFoundInCurrentScope, currentScopeVariable := scope.GetVariable(name)
+	if isFoundInCurrentScope {
+		return &EvalValue{Type: currentScopeVariable.ValueType, Value: currentScopeVariable.Value}
+	} else {
+		return interpreter.EvaluateIdentifier(name, scope.Prev, false)
+	}
 }
 func (interpreter *Interpreter) EvaluateFunctionCall(function *RuntimeFunctionCall, params Parameters) *EvalValue {
-	newScope := &Scope{}
-	newScope.Variables = function.Scope.Variables
-	newScope.Stack = function.Scope.Stack
+	newScope := &Scope{
+		Variables: function.Scope.Variables,
+		Stack:     function.Scope.Stack,
+		Prev:      function.Scope,
+	}
+
 	function.Scope = newScope
 	interpreter.ApplyParamsToFunction(function, params)
+	if function.IsNative {
+		return function.Call(params)
+	}
 	interpreter.CallStack.Push(function)
 	for _, child := range function.Nodes {
 		interpreter.Evaluate(child, newScope)
@@ -193,6 +204,9 @@ func (Interpreter *Interpreter) ApplyParamsToFunction(function *RuntimeFunctionC
 	newVariables := []*Variable{}
 	for _, variable := range function.Scope.Variables {
 		matched := params[variable.Name]
+		if matched == nil {
+			Interpreter.threwError(fmt.Sprintf("Expecting param '%v' for calling '%v'", variable.Name, function.Name))
+		}
 		if matched.Type == VAR_TYPE_UNDEFINED {
 			Interpreter.threwError(fmt.Sprintf("Expected to have '%v' param for calling function '%v'", variable.Name, function.Name))
 		}
