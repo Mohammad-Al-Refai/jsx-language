@@ -1,3 +1,3 @@
 <App>
-   </Let id={"x"} value={[1,"hi",3,4]}>
+   </Let id={"x"} value={Array.Index.X.Y.Z}>
 </App>

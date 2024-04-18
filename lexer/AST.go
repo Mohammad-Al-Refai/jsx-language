@@ -37,6 +37,10 @@ type OpenTag struct {
 type Array struct {
 	Items []Statement `json:"Items"`
 }
+type Object struct {
+	Name    string   `json:"name"`
+	Members []string `json:"members"`
+}
 type CloseTag struct {
 	Name   string      `json:"name"`
 	Params []Parameter `json:"params"`
@@ -238,7 +242,28 @@ func (ast *AST) ParseArray() Statement {
 	}
 	return statement
 }
-
+func (ast *AST) ParseObject() Statement {
+	ast.Last = "ParseObject"
+	statement := Statement{Kind: K_OBJECT}
+	objName := ast.CurrentToken.Literal
+	ast.next()
+	members := []string{}
+	isNotDone := true
+	for isNotDone {
+		if ast.CurrentToken.Token != DOT {
+			members = append(members, ast.CurrentToken.Literal)
+		}
+		ast.next()
+		if ast.checkForward().Token == RBRACE {
+			isNotDone = false
+		}
+	}
+	statement.Body = Object{
+		Name:    objName,
+		Members: members,
+	}
+	return statement
+}
 func (ast *AST) ParseExpr() Statement {
 	ast.Last = "ParseExpr"
 	token := ast.CurrentToken.Token
@@ -274,6 +299,9 @@ func (ast *AST) ParseString() Statement {
 	return stmt
 }
 func (ast *AST) ParseIdentifier() Statement {
+	if ast.checkForward().Token == DOT {
+		return ast.ParseObject()
+	}
 	stmt := Statement{}
 	stmt.Kind = K_IDENTIFIER
 	stmt.Body = ast.CurrentToken.Literal

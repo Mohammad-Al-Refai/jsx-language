@@ -5,6 +5,7 @@ import "fmt"
 type Scope struct {
 	Variables []*Variable
 	Functions []*RuntimeFunctionCall
+	Objects   []*RuntimeObject
 	Stack     []*EvalValue
 	Prev      *Scope
 }
@@ -27,6 +28,15 @@ func (scope *Scope) DefineVariable(variable Variable) bool {
 		}
 	}
 	scope.Variables = append(scope.Variables, &variable)
+	return true
+}
+func (scope *Scope) DefineObject(obj *RuntimeObject) bool {
+	for _, declaration := range scope.Objects {
+		if declaration.Name == obj.Name {
+			return false
+		}
+	}
+	scope.Objects = append(scope.Objects, obj)
 	return true
 }
 func (scope *Scope) DefineFunction(function *RuntimeFunctionCall) bool {

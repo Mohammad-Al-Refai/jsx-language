@@ -23,12 +23,12 @@ const (
 	CLOSE_OPEN_TAG // >
 
 	// Infix ops
-	ADD // +
-	SUB // -
-	MUL // *
-	DIV // /
-	MOD // %
-
+	ADD    // +
+	SUB    // -
+	MUL    // *
+	DIV    // /
+	MOD    // %
+	DOT    // .
 	LPAREN // (
 	LBRACK // [
 	RBRACK // ]
@@ -75,6 +75,7 @@ var tokens = []string{
 	RPAREN:         ")",
 	LBRACK:         "[",
 	RBRACK:         "]",
+	DOT:            ".",
 	STRING:         "STRING",
 	// Infix ops
 	ADD:          "+",

@@ -19,6 +19,9 @@ func (ev *EvalValue) IsBoolean() bool {
 func (ev *EvalValue) IsArray() bool {
 	return ev.Type == VAR_TYPE_ARRAY
 }
+func (ev *EvalValue) IsObject() bool {
+	return ev.Type == VAR_TYPE_OBJECT
+}
 func (ev *EvalValue) ExpectAnyOf(t []VarType) bool {
 	for _, ty := range t {
 		if ev.Type == ty {
@@ -34,4 +37,28 @@ type RuntimeFunctionCall struct {
 	Scope    *Scope
 	Nodes    []lexer.Statement
 	Call     func(Parameters) *EvalValue
+}
+type RuntimeObject struct {
+	IsNative bool
+	Name     string
+	Members  []RuntimeObjectMember
+}
+type RuntimeObjectMember struct {
+	Name string
+	Call func(Parameters) *EvalValue
+}
+
+type ArrayRuntime struct {
+	Size  int
+	Items []*EvalValue
+}
+
+func (a *ArrayRuntime) Push(value *EvalValue) {
+	a.Items = append(a.Items, value)
+}
+
+func (a *ArrayRuntime) Pop() *EvalValue {
+	last := a.Items[len(a.Items)-1]
+	a.Items = a.Items[:len(a.Items)-1]
+	return last
 }
