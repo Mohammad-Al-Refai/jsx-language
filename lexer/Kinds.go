@@ -15,6 +15,7 @@ const (
 	K_NUMBER
 	K_STRING
 	K_OBJECT
+	K_ARRAY
 )
 
 var kinds = []string{
@@ -29,6 +30,7 @@ var kinds = []string{
 	K_OBJECT:          "Object",
 	K_OPERATOR:        "Operator",
 	K_EXPRESSION:      "Expression",
+	K_ARRAY:           "Array",
 }
 
 func (k StatementKind) String() string {

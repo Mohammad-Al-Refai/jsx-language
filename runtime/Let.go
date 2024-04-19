@@ -20,7 +20,6 @@ func (interpreter *Interpreter) EvaluateLetDeclaration(closeTag lexer.CloseTag, 
 		interpreter.threwError("Expect 'id' param")
 		return &EvalValue{Type: VAR_TYPE_UNDEFINED, Value: "undefined"}
 	}
-
 	isOk := scope.DefineVariable(Variable{Name: id.Value.(string), Value: value.Value, ValueType: value.Type})
 	if !isOk {
 		interpreter.threwError(fmt.Sprintf("%v is already declared", id))

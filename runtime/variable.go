@@ -10,6 +10,8 @@ const (
 	VAR_TYPE_BOOLEAN
 	VAR_TYPE_FUNCTION
 	VAR_TYPE_NATIVE_FUNCTION
+	VAR_TYPE_ARRAY
+	VAR_TYPE_OBJECT
 )
 
 var types = []string{
@@ -20,6 +22,8 @@ var types = []string{
 	VAR_TYPE_BOOLEAN:         "boolean",
 	VAR_TYPE_FUNCTION:        "function",
 	VAR_TYPE_NATIVE_FUNCTION: "n-function",
+	VAR_TYPE_ARRAY:           "array",
+	VAR_TYPE_OBJECT:          "object",
 }
 
 func (t VarType) String() string {

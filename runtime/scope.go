@@ -2,17 +2,21 @@ package runtime
 
 import "fmt"
 
+type ScopeStack struct {
+	Stack []*EvalValue
+}
 type Scope struct {
 	Variables []*Variable
 	Functions []*RuntimeFunctionCall
-	Stack     []*EvalValue
+	Objects   []*RuntimeObject
+	Stack     ScopeStack
 	Prev      *Scope
 }
 
-func (scope *Scope) Push(value *EvalValue) {
+func (scope *ScopeStack) Push(value *EvalValue) {
 	scope.Stack = append(scope.Stack, value)
 }
-func (scope *Scope) Pop() *EvalValue {
+func (scope *ScopeStack) Pop() *EvalValue {
 	if len(scope.Stack) == 0 {
 		return &EvalValue{Type: VAR_TYPE_UNDEFINED}
 	}
@@ -27,6 +31,15 @@ func (scope *Scope) DefineVariable(variable Variable) bool {
 		}
 	}
 	scope.Variables = append(scope.Variables, &variable)
+	return true
+}
+func (scope *Scope) DefineObject(obj *RuntimeObject) bool {
+	for _, declaration := range scope.Objects {
+		if declaration.Name == obj.Name {
+			return false
+		}
+	}
+	scope.Objects = append(scope.Objects, obj)
 	return true
 }
 func (scope *Scope) DefineFunction(function *RuntimeFunctionCall) bool {
@@ -61,7 +74,14 @@ func (scope *Scope) GetFunction(name string) (bool, *RuntimeFunctionCall) {
 	}
 	return false, &RuntimeFunctionCall{}
 }
-
+func (scope *Scope) GetObject(name string) (bool, *RuntimeObject) {
+	for _, declaration := range scope.Objects {
+		if declaration.Name == name {
+			return true, declaration
+		}
+	}
+	return false, &RuntimeObject{}
+}
 func (scope *Scope) UpdateVariable(name string, value interface{}) (bool, *Variable) {
 	for _, declaration := range scope.Variables {
 		if declaration.Name == name {
@@ -72,6 +92,6 @@ func (scope *Scope) UpdateVariable(name string, value interface{}) (bool, *Varia
 	return false, &Variable{}
 }
 func (scope *Scope) Free() {
-	scope.Stack = []*EvalValue{}
+	scope.Stack = ScopeStack{}
 	scope.Variables = []*Variable{}
 }

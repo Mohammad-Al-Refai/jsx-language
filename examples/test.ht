@@ -1,9 +1,6 @@
 <App>
-   </Let id={"x"} value={1}>
-   <Function id={"Hi"}>
-      </Let id={"x"} value={2}>
-      </Print value={x}>
-   </Function>
-   </Hi>
-   </Print value={x}>
+   </Let id={"data"} value={[1,2,"hello",false,423]}>
+   <For var={"i"} from={0} to={data array.length() 1 -}>
+      </Print value={i data array.at()}>
+   </For>
 </App>
