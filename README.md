@@ -9,8 +9,12 @@ Have you ever wondered how programming languages actually work under the hood? D
 In this project, I set out to create a simple stack-oriented programming language and its syntax looks like JSX (because I love react js 😊) and all of that using the Go programming language with 0 dependencies. Inspired by my curiosity and desire to understand the inner workings of languages, this project served as an educational endeavor to demystify the magic behind programming languages, even it just an interpreted language not a compiled language but it worth it.
 
 ## Getting Started
+Download sogla from the releases then create a file and run:
 
-TODO
+```bash
+./sogla [file path]
+```
+
 ### How it works?
 ![image](https://github.com/Mohammad-Al-Refai/ht/assets/55941955/8afca54b-c5d1-4e18-afd0-b16b339c9e4e)
 
