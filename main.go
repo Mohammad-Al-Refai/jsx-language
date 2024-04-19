@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 
 	"m.shebli.refaai/ht/lexer"
@@ -9,16 +10,15 @@ import (
 )
 
 func main() {
-	lex := lexer.Lexer{}
-	file, err := os.Open("./examples/test.ht")
+	file, err := RequestFile()
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
+		return
 	}
+	lex := lexer.Lexer{}
 	tokens := lex.LoadFileReader(file)
-	// fmt.Printf("%+v\n", tokens)
 	ast := lexer.NewAST(tokens)
 	program := ast.ProduceAST()
-	// fmt.Printf("%+v\n", program)
 	program_ast, err := json.Marshal(program)
 	if err != nil {
 		panic(err)
@@ -26,4 +26,16 @@ func main() {
 	os.WriteFile("AST.json", program_ast, 0777)
 	interpreter := runtime.NewInterpreter(program)
 	interpreter.Run()
+}
+func RequestFile() (*os.File, error) {
+	args := os.Args
+	if len(args) == 1 {
+		return nil, fmt.Errorf("[Error]: Missing file path")
+	}
+	filePath := args[1]
+	file, err := os.Open(filePath)
+	if err != nil {
+		return nil, fmt.Errorf("[Error]: '%v' is not found", filePath)
+	}
+	return file, nil
 }
