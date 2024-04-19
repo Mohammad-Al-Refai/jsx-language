@@ -6,7 +6,7 @@
 Have you ever wondered how programming languages actually work under the hood? Do you believe that languages are just magical entities?
 
 
-In this project, I set out to create a simple stack-based programming language using the Go programming language. Inspired by my curiosity and desire to understand the inner workings of languages, this project served as an educational endeavor to demystify the magic behind programming languages, even it just an interpreted language not a compiled language but it worth it.
+In this project, I set out to create a simple stack-based programming language and its syntax looks like JSX (because I love react js 😊) and all of that using the Go programming language with 0 dependencies. Inspired by my curiosity and desire to understand the inner workings of languages, this project served as an educational endeavor to demystify the magic behind programming languages, even it just an interpreted language not a compiled language but it worth it.
 
 ## Getting Started
 
@@ -16,7 +16,19 @@ TODO
 
 ### Variables
 
-Support `string` & `number`& `array` & `boolean` & object member call
+Support:
+
+- `string`
+
+- `number`
+
+- `array`
+
+- `boolean`
+
+- object member call
+
+</br>
 
 ```jsx
 <App>
@@ -38,6 +50,16 @@ Support `string` & `number`& `array` & `boolean` & object member call
 ```
 
 ## If Statement
+
+Logical operators:
+
+- `==`
+
+- `!=`
+
+- `greater` like `>`
+
+- `smaller` like `<`
 
 ```jsx
 <App>
