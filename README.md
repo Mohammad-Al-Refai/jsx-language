@@ -1,32 +1,43 @@
 # ht
 
-interpreted html syntax like programming language
+## Overview
 
-## App (entry point)
+Have you ever wondered how programming languages actually work under the hood? Do you believe that languages are just magical entities?
 
-```html
-<App>
-...
-</App>
-```
+In this project, I set out to create a simple stack-based programming language using the Go programming language. Inspired by my curiosity and desire to understand the inner workings of languages, this project served as an educational endeavor to demystify the magic behind programming languages, even it just an interpreted language not a compiled language but it worth it.
 
-## Variables
+## Getting Started
 
-```html
+TODO
+
+## Syntax Examples
+
+### Variables
+
+Support `string` & `number`& `array` & `boolean` & object member call
+
+```jsx
 <App>
    </Let id={"name"} value={"Mohammad"}>
 </App>
-```
 
-```html
 <App>
    </Let id={"number"} value={1}>
 </App>
+
+<App>
+   </Let id={"data"} value={[1,"hi",false]}>
+</App>
+
+<App>
+   </Let id={"data"} value={[1,"hi",false]}>
+   </Let id={"dataLength"} value={data array.length()}>
+</App>
 ```
 
-## If
+## If Statement
 
-```html
+```jsx
 <App>
    <If condition={1 2 greater}>
     ...
@@ -36,7 +47,7 @@ interpreted html syntax like programming language
 
 ## Loop
 
-```html
+```jsx
 <App>
    <For var={"i"} from={0} to={10}>
      </Print value={i}>
@@ -46,7 +57,7 @@ interpreted html syntax like programming language
 
 ## Function
 
-```html
+```jsx
 <App>
    <Function id={"Sum"} args={"x","y"}>
         <Return value={x y +}>
@@ -54,9 +65,9 @@ interpreted html syntax like programming language
 </App>
 ```
 
-### Call function
+## Function call
 
-```html
+```jsx
 <App>
   </Sum x={1} y={2}>
 </App>
@@ -67,73 +78,57 @@ interpreted html syntax like programming language
 ```jsx
 [array] array.length()
 
-# example
 <App>
    </Let id={"data"} value={[1,2,"hello",false,423]}>
    </Print value={data array.length()}>
 </App>
-
-# output:
-7
 ```
 
-```js
+```jsx
 [array] [index] array.at()
 
-# example
 <App>
    </Let id={"data"} value={[1,2,"hello",false,423]}>
    </Print value={0 data array.at()}>
 </App>
-
-# output:
-1
 ```
 
-```js
+```jsx
 [array] [value] array.push()
 
-# example
 <App>
    </Let id={"data"} value={[]}>
    </Print value={"hello" data array.push()}>
 </App>
-
-# output:
-hello
 ```
 
-```js
+```jsx
+[array] [value] array.push()
+
 [array] array.pop()
 
-# example
 <App>
    </Let id={"data"} value={[1,2,3]}>
    </Print value={data array.pop()}>
    </Print value={data}>
 </App>
 
-# output:
-3
-[1 2]
 ```
 
-### Loop over array
+## Loop Over Array
 
-```js
-
-# example
+```jsx
 <App>
    </Let id={"data"} value={[1,2,"hello",false,423]}>
    <For var={"i"} from={0} to={data array.length() 1 -}>
       </Print value={i data array.at()}>
    </For>
 </App>
-
-# output:
-1
-2
-hello
-false
-423
 ```
+
+[More examples](https://github.com/Mohammad-Al-Refai/ht/tree/main/examples)
+## Recurses I Learnt from
+
+- [Making Programming Language in Python -- Porth](https://www.youtube.com/watch?v=8QP2fDBIxjM&list=PLpM-Dvs8t0VbMZA7wW9aR3EtBqe2kinu4) by Tsoding Daily
+
+- [How To Build A Programming Language From Scratch](https://www.youtube.com/watch?v=8VB5TY1sIRo&list=PL_2VhOvlMk4UHGqYCLWc6GO8FaPl8fQTh&pp=iAQB) by tylerlaceby
