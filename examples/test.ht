@@ -3,6 +3,5 @@
    <For var={"i"} from={0} to={data array.length() 1 - }>
       </Print value={data array.pop()}>
       </Print value={data}>
-
    </For>
 </App>

@@ -61,3 +61,21 @@ interpreted html syntax like programming language
   </Sum x={1} y={2}>
 </App>
 ```
+
+# Array
+
+```js
+[array] array.length()
+```
+
+```js
+[array] [index] array.at()
+```
+
+```js
+[array] [value] array.push()
+```
+
+```js
+[array] array.pop()
+```

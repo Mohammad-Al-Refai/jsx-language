@@ -242,6 +242,8 @@ func (ast *AST) ParseArray() Statement {
 	}
 	return statement
 }
+
+// Add checks for ()
 func (ast *AST) ParseObject() Statement {
 	ast.Last = "ParseObject"
 	statement := Statement{Kind: K_OBJECT}
