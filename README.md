@@ -2,7 +2,7 @@
 
 interpreted html syntax like programming language
 
-## App
+## App (entry point)
 
 ```html
 <App>
