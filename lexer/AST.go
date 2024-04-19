@@ -264,10 +264,13 @@ func (ast *AST) ParseObject() Statement {
 		}
 		if ast.CurrentToken.Token == LPAREN {
 			ast.next()
+			if ast.CurrentToken.Token == RPAREN {
+				break
+			} else {
+				ast.threwError("Expect ')'")
+			}
 		}
-		if ast.CurrentToken.Token == RPAREN {
-			break
-		}
+
 		ast.next()
 	}
 	statement.Body = Object{
