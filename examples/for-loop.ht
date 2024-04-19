@@ -2,10 +2,10 @@
   <For var={"i"} from={0} to={10}>
         <If condition={i 2 % 0 ==}>
             </Print value={"Even " i +} >
-        </If>
+        <If/>
         <If condition={i 2 % 0 !=}>
             </Print value={"Odd " i +} >
-        </If>
-  </For>
-</App>
+        <If/>
+  <For/>
+<App/>
 

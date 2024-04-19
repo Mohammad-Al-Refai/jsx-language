@@ -1,9 +1,9 @@
 <App>
-    </Loop from={0} to={10}>
+    <Loop from={0} to={10}/>
     <Function id={"Loop"} args={"from","to"}>
          <If condition={from to !=}>
-            </Loop from={from 1 +} to={to}>
-        </If>
-        </Print value={from}>
-    </Function>
-</App>
+            <Loop from={from 1 +} to={to}/>
+        <If/>
+        <Print value={from}/>
+    <Function/>
+<App/>

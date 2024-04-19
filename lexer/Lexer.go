@@ -52,21 +52,10 @@ func (l *Lexer) Lex() (Position, Token, string) {
 		switch r {
 		case '\n':
 			l.resetPosition()
-		case '<':
-			next, err := l.Reader.Peek(1)
-			if err != nil {
-				if err == io.EOF {
-					panic(err)
-				}
-			}
-			if string(next) == "/" {
-				l.Reader.ReadRune()
-				return l.Pos, CLOSE_TAG, "</"
-			} else {
-				return l.Pos, OPEN_TAG, "<"
-			}
 		case '>':
 			return l.Pos, CLOSE_OPEN_TAG, ">"
+		case '<':
+			return l.Pos, OPEN_TAG, "<"
 		case '+':
 			return l.Pos, ADD, "+"
 		case '[':
@@ -78,7 +67,18 @@ func (l *Lexer) Lex() (Position, Token, string) {
 		case '%':
 			return l.Pos, MOD, "%"
 		case '/':
-			return l.Pos, DIV, "/"
+			next, err := l.Reader.Peek(1)
+			if err != nil {
+				if err == io.EOF {
+					panic(err)
+				}
+			}
+			if string(next) == ">" {
+				l.Reader.ReadRune()
+				return l.Pos, CLOSE_TAG, "/>"
+			} else {
+				return l.Pos, DIV, "/"
+			}
 		case '-':
 			return l.Pos, SUB, "-"
 		case '*':
