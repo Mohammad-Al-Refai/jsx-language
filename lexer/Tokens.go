@@ -18,7 +18,7 @@ const (
 	COMMA //,
 	GREATER_THAN
 	SMALLER_THAN
-	CLOSE_TAG      //</
+	CLOSE_TAG      // />
 	OPEN_TAG       //<
 	CLOSE_OPEN_TAG // >
 
@@ -66,8 +66,9 @@ var tokens = []string{
 	ILLEGAL:        "ILLEGAL",
 	IDENT:          "IDENT",
 	INT:            "INT",
+	OPEN_TAG:       "<",
 	CLOSE_OPEN_TAG: ">",
-	CLOSE_TAG:      "</",
+	CLOSE_TAG:      "/>",
 	COMMA:          ",",
 	LBRACE:         "{",
 	RBRACE:         "}",
