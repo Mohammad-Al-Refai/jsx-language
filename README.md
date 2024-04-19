@@ -130,8 +130,6 @@ Logical operators:
 ```jsx
 // [array] array.pop()
 
-
-
 <App>
    <Let id={"data"} value={[1,2,3]}>
    <Print value={data array.pop()}/>
