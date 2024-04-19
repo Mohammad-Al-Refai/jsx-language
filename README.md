@@ -12,7 +12,8 @@ In this project, I set out to create a simple stack-based programming language a
 
 TODO
 
-## Syntax Examples
+### Comment
+start with `#`
 
 ### Variables
 
@@ -100,7 +101,7 @@ Logical operators:
 ## Array
 
 ```jsx
-[array] array.length()
+// [array] array.length()
 
 <App>
    <Let id={"data"} value={[1,2,"hello",false,423]}/>
@@ -109,7 +110,7 @@ Logical operators:
 ```
 
 ```jsx
-[array] [index] array.at()
+// [array] [index] array.at()
 
 <App>
    <Let id={"data"} value={[1,2,"hello",false,423]}/>
@@ -118,7 +119,7 @@ Logical operators:
 ```
 
 ```jsx
-[array] [value] array.push()
+// [array] [value] array.push()
 
 <App>
    <Let id={"data"} value={[]}>
@@ -127,9 +128,9 @@ Logical operators:
 ```
 
 ```jsx
-[array] [value] array.push()
+// [array] array.pop()
 
-[array] array.pop()
+
 
 <App>
    <Let id={"data"} value={[1,2,3]}>
