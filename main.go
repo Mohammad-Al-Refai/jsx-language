@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 
@@ -19,11 +18,11 @@ func main() {
 	tokens := lex.LoadFileReader(file)
 	ast := lexer.NewAST(tokens)
 	program := ast.ProduceAST()
-	program_ast, err := json.Marshal(program)
-	if err != nil {
-		panic(err)
-	}
-	os.WriteFile("AST.json", program_ast, 0777)
+	// program_ast, err := json.Marshal(program)
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// os.WriteFile("AST.json", program_ast, 0777)
 	interpreter := runtime.NewInterpreter(program)
 	interpreter.Run()
 }
