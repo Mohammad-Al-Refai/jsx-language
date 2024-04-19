@@ -52,7 +52,7 @@ Support:
 <App/>
 ```
 
-## If Statement
+## If statement
 
 Logical operators:
 
@@ -140,7 +140,7 @@ Logical operators:
 
 ```
 
-## Loop Over Array
+## Loop over array
 
 ```jsx
 <App>
@@ -152,9 +152,10 @@ Logical operators:
 ```
 
 [More examples](https://github.com/Mohammad-Al-Refai/ht/tree/main/examples)
-## Recurses I Learnt from
+## Recurses I learnt from
 
-- [Making Programming Language in Python -- Porth](https://www.youtube.com/watch?v=8QP2fDBIxjM&list=PLpM-Dvs8t0VbMZA7wW9aR3EtBqe2kinu4) by Tsoding Daily
+- [Making Programming Language in Python -- Porth](https://www.youtube.com/watch?v=8QP2fDBIxjM&list=PLpM-Dvs8t0VbMZA7wW9aR3EtBqe2kinu4)
 
-- [How To Build A Programming Language From Scratch](https://www.youtube.com/watch?v=8VB5TY1sIRo&list=PL_2VhOvlMk4UHGqYCLWc6GO8FaPl8fQTh&pp=iAQB) by tylerlaceby
+- [How To Build A Programming Language From Scratch](https://www.youtube.com/watch?v=8VB5TY1sIRo&list=PL_2VhOvlMk4UHGqYCLWc6GO8FaPl8fQTh&pp=iAQB)
+  
 - [Stack orinted programming](https://en.wikipedia.org/wiki/Stack-oriented_programming)
