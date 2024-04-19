@@ -20,21 +20,21 @@ Support `string` & `number`& `array` & `boolean` & object member call
 
 ```jsx
 <App>
-   </Let id={"name"} value={"Mohammad"}>
-</App>
+   <Let id={"name"} value={"Mohammad"}/>
+<App/>
 
 <App>
-   </Let id={"number"} value={1}>
-</App>
+   <Let id={"number"} value={1}/>
+<App/>
 
 <App>
-   </Let id={"data"} value={[1,"hi",false]}>
-</App>
+   <Let id={"data"} value={[1,"hi",false]}/>
+<App/>
 
 <App>
-   </Let id={"data"} value={[1,"hi",false]}>
-   </Let id={"dataLength"} value={data array.length()}>
-</App>
+   <Let id={"data"} value={[1,"hi",false]}/>
+   <Let id={"dataLength"} value={data array.length()}/>
+<App/>
 ```
 
 ## If Statement
@@ -43,8 +43,8 @@ Support `string` & `number`& `array` & `boolean` & object member call
 <App>
    <If condition={1 2 greater}>
     ...
-    </If>
-</App>
+    <If/>
+<App/>
 ```
 
 ## Loop
@@ -52,9 +52,9 @@ Support `string` & `number`& `array` & `boolean` & object member call
 ```jsx
 <App>
    <For var={"i"} from={0} to={10}>
-     </Print value={i}>
-    </For>
-</App>
+     <Print value={i}/>
+    <For/>
+<App/>
 ```
 
 ## Function
@@ -63,16 +63,16 @@ Support `string` & `number`& `array` & `boolean` & object member call
 <App>
    <Function id={"Sum"} args={"x","y"}>
         <Return value={x y +}>
-    </Function>
-</App>
+    <Function/>
+<App/>
 ```
 
 ## Function call
 
 ```jsx
 <App>
-  </Sum x={1} y={2}>
-</App>
+  <Sum x={1} y={2}/>
+<App/>
 ```
 
 ## Array
@@ -81,27 +81,27 @@ Support `string` & `number`& `array` & `boolean` & object member call
 [array] array.length()
 
 <App>
-   </Let id={"data"} value={[1,2,"hello",false,423]}>
-   </Print value={data array.length()}>
-</App>
+   <Let id={"data"} value={[1,2,"hello",false,423]}/>
+   <Print value={data array.length()}/>
+<App/>
 ```
 
 ```jsx
 [array] [index] array.at()
 
 <App>
-   </Let id={"data"} value={[1,2,"hello",false,423]}>
-   </Print value={0 data array.at()}>
-</App>
+   <Let id={"data"} value={[1,2,"hello",false,423]}/>
+   <Print value={0 data array.at()}/>
+<App/>
 ```
 
 ```jsx
 [array] [value] array.push()
 
 <App>
-   </Let id={"data"} value={[]}>
-   </Print value={"hello" data array.push()}>
-</App>
+   <Let id={"data"} value={[]}>
+   <Print value={"hello" data array.push()}/>
+<App/>
 ```
 
 ```jsx
@@ -110,10 +110,10 @@ Support `string` & `number`& `array` & `boolean` & object member call
 [array] array.pop()
 
 <App>
-   </Let id={"data"} value={[1,2,3]}>
-   </Print value={data array.pop()}>
-   </Print value={data}>
-</App>
+   <Let id={"data"} value={[1,2,3]}>
+   <Print value={data array.pop()}/>
+   <Print value={data}/>
+<App/>
 
 ```
 
@@ -121,11 +121,11 @@ Support `string` & `number`& `array` & `boolean` & object member call
 
 ```jsx
 <App>
-   </Let id={"data"} value={[1,2,"hello",false,423]}>
+   <Let id={"data"} value={[1,2,"hello",false,423]}>
    <For var={"i"} from={0} to={data array.length() 1 -}>
-      </Print value={i data array.at()}>
-   </For>
-</App>
+      <Print value={i data array.at()}/>
+   <For/>
+<App/>
 ```
 
 [More examples](https://github.com/Mohammad-Al-Refai/ht/tree/main/examples)
