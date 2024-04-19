@@ -6,11 +6,13 @@
 Have you ever wondered how programming languages actually work under the hood? Do you believe that languages are just magical entities?
 
 
-In this project, I set out to create a simple stack-based programming language and its syntax looks like JSX (because I love react js 😊) and all of that using the Go programming language with 0 dependencies. Inspired by my curiosity and desire to understand the inner workings of languages, this project served as an educational endeavor to demystify the magic behind programming languages, even it just an interpreted language not a compiled language but it worth it.
+In this project, I set out to create a simple stack-oriented programming language and its syntax looks like JSX (because I love react js 😊) and all of that using the Go programming language with 0 dependencies. Inspired by my curiosity and desire to understand the inner workings of languages, this project served as an educational endeavor to demystify the magic behind programming languages, even it just an interpreted language not a compiled language but it worth it.
 
 ## Getting Started
 
 TODO
+### How it works?
+![image](https://github.com/Mohammad-Al-Refai/ht/assets/55941955/8afca54b-c5d1-4e18-afd0-b16b339c9e4e)
 
 ### Comment
 start with `#`
@@ -155,3 +157,4 @@ Logical operators:
 - [Making Programming Language in Python -- Porth](https://www.youtube.com/watch?v=8QP2fDBIxjM&list=PLpM-Dvs8t0VbMZA7wW9aR3EtBqe2kinu4) by Tsoding Daily
 
 - [How To Build A Programming Language From Scratch](https://www.youtube.com/watch?v=8VB5TY1sIRo&list=PL_2VhOvlMk4UHGqYCLWc6GO8FaPl8fQTh&pp=iAQB) by tylerlaceby
+- [Stack orinted programming](https://en.wikipedia.org/wiki/Stack-oriented_programming)
