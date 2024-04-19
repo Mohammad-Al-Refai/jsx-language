@@ -65,13 +65,13 @@ func (ast *AST) expect(token Token, message string) {
 	}
 	ast.threwError(fmt.Sprintf("Expect %v in %v", token, message))
 }
-func (ast *AST) expectKeyWordOrAny(message string) {
+func (ast *AST) expectIdentifier() {
 	ast.next()
 	ok, _ := IsKeyword(ast.CurrentToken.Literal)
 	if ast.CurrentToken.Token == IDENT || ok {
 		return
 	}
-	ast.threwError(fmt.Sprintf("Expect %v in %v", ast.CurrentToken.Literal, message))
+	ast.threwError(fmt.Sprintf("'%v' is not a valid tag name ", ast.CurrentToken.Literal))
 }
 func (ast *AST) threwError(message string) {
 	fmt.Println(fmt.Errorf(fmt.Sprintf("[ParseError][%v] %v got '%v' at [%v:%v]",
@@ -126,7 +126,7 @@ func (ast *AST) ParseOpenTag() Statement {
 	statement := Statement{Kind: K_OPEN_TAG}
 	children := []Statement{}
 	isNotFoundClose := true
-	ast.expectKeyWordOrAny("Tag name in OpenTag")
+	ast.expectIdentifier()
 	openTag := OpenTag{}
 	openTag.Name = ast.CurrentToken.Literal
 	params, isClose := ast.ParseParameter()
