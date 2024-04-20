@@ -135,6 +135,10 @@ func (interpreter *Interpreter) EvaluateCloseTag(closeTag lexer.CloseTag, scope 
 	if name == "Break" {
 		return &EvalValue{Value: "break", Type: VAR_TYPE_NATIVE_FUNCTION}
 	}
+
+	if name == "Continue" {
+		return &EvalValue{Value: "continue", Type: VAR_TYPE_NATIVE_FUNCTION}
+	}
 	if name == "Set" {
 		return interpreter.EvaluateSet(closeTag, scope)
 	}

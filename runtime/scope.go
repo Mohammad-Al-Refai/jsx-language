@@ -14,6 +14,7 @@ type Scope struct {
 }
 
 func (scope *ScopeStack) Push(value *EvalValue) {
+	// fmt.Printf("Push: %v\n", value)
 	scope.Stack = append(scope.Stack, value)
 }
 func (scope *ScopeStack) Pop() *EvalValue {
@@ -22,6 +23,7 @@ func (scope *ScopeStack) Pop() *EvalValue {
 	}
 	last := scope.Stack[len(scope.Stack)-1]
 	scope.Stack = scope.Stack[:len(scope.Stack)-1]
+	// fmt.Printf("Pop: %v Length: %v\n", last, len(scope.Stack))
 	return last
 }
 func (scope *Scope) DefineVariable(variable Variable) bool {
@@ -52,11 +54,9 @@ func (scope *Scope) DefineFunction(function *RuntimeFunctionCall) bool {
 	return true
 }
 func (scope *Scope) Debug() {
-	vars := []string{}
-	for _, x := range scope.Variables {
-		vars = append(vars, x.Name)
-	}
-	fmt.Printf("Variables: %v\n--------------\n", vars)
+	vars := []*EvalValue{}
+	vars = append(vars, scope.Stack.Stack...)
+	fmt.Printf("Stack: %v\n--------------\n", vars)
 }
 func (scope *Scope) GetVariable(name string) (bool, *Variable) {
 	for _, declaration := range scope.Variables {
