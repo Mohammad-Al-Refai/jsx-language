@@ -25,7 +25,7 @@ start with `#`
 
 Math operations: `+` & `-` & `*` & `/` & `%`
 
-Support:
+Supported values:
 
 - `string`
 
@@ -45,7 +45,7 @@ Support:
 <App/>
 
 <App>
-   <Let id={"number"} value={1}/>
+   <Let id={"num"} value={1 1 +}/>
 <App/>
 
 <App>
