@@ -23,6 +23,8 @@ start with `#`
 
 ### Variables
 
+Math operations: `+` & `-` & `*` & `/` & `%`
+
 Support:
 
 - `string`
