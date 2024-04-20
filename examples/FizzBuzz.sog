@@ -1,0 +1,23 @@
+<App>
+    <Let id={"n"} value={100}/> 
+    <For var={"i"} from={1} to={n}>
+        <Let id={"isFizz"} value={i 3 % 0 ==}/> 
+        <Let id={"isBuzz"} value={i 5 % 0 ==}/> 
+        <If condition={isFizz}>
+            <If condition={isBuzz}>
+                <Print value={"FizzBuzz"}/>
+            <If/>
+        <If/>
+        <If condition={isFizz false ==}>
+            <If condition={isBuzz false ==}>
+                <Print value={i}/>
+            <If/>
+        <If/>
+        <If condition={isFizz}>
+            <Print value={"Fizz"}/>
+        <If/>
+        <If condition={isBuzz}>
+            <Print value={"Buzz"}/>
+        <If/>
+    <For/>
+<App/>

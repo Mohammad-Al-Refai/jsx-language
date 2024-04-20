@@ -39,9 +39,6 @@ func (interpreter *Interpreter) EvaluateOperator(expr lexer.Statement, scope *Sc
 }
 
 func (interpreter *Interpreter) Sum(x *EvalValue, y *EvalValue) *EvalValue {
-	if !x.IsNumber() || !x.IsString() || !y.IsNumber() || !y.IsString() {
-		interpreter.threwError(fmt.Sprintf("expect string or number found '%v' and '%v'", y.Type.String(), x.Type.String()))
-	}
 	if x.IsString() && y.IsString() {
 		return &EvalValue{Type: VAR_TYPE_STRING, Value: y.Value.(string) + x.Value.(string)}
 	}
@@ -54,10 +51,8 @@ func (interpreter *Interpreter) Sum(x *EvalValue, y *EvalValue) *EvalValue {
 	if x.IsNumber() && y.IsString() {
 		return &EvalValue{Type: VAR_TYPE_STRING, Value: y.Value.(string) + strconv.Itoa(x.Value.(int))}
 	}
-	if x.IsNumber() || x.IsString() && y.IsNumber() || y.IsString() {
-		interpreter.threwError(fmt.Sprintf("expect left and right to be number or string found '%v' and '%v'", y.Type.String(), x.Type.String()))
-	}
-	return &EvalValue{Type: VAR_TYPE_NUMBER, Value: y.Value.(int) + x.Value.(int)}
+	interpreter.threwError(fmt.Sprintf("expect left and right to be number or string found '%v' and '%v'", y.Type.String(), x.Type.String()))
+	return &EvalValue{Type: VAR_TYPE_UNDEFINED}
 }
 func (interpreter *Interpreter) Mul(x *EvalValue, y *EvalValue) *EvalValue {
 	if !x.IsNumber() || !y.IsNumber() {
@@ -96,26 +91,24 @@ func (interpreter *Interpreter) SmallerThan(x *EvalValue, y *EvalValue) *EvalVal
 	return &EvalValue{Type: VAR_TYPE_BOOLEAN, Value: y.Value.(int) < x.Value.(int)}
 }
 func (interpreter *Interpreter) Equal(x *EvalValue, y *EvalValue) *EvalValue {
-	if !x.IsNumber() || !x.IsString() || !y.IsNumber() || !y.IsString() || !y.IsBoolean() || !y.IsBoolean() {
-		interpreter.threwError(fmt.Sprintf("expect string or number found '%v' and '%v'", y.Type.String(), x.Type.String()))
-	}
 	if x.IsString() && y.IsString() {
 		return &EvalValue{Type: VAR_TYPE_NUMBER, Value: y.Value.(string) == x.Value.(string)}
-	}
-	if x.IsBoolean() && y.IsBoolean() {
+	} else if x.IsBoolean() && y.IsBoolean() {
 		return &EvalValue{Type: VAR_TYPE_NUMBER, Value: y.Value.(bool) == x.Value.(bool)}
+	} else if x.IsNumber() && y.IsNumber() {
+		return &EvalValue{Type: VAR_TYPE_BOOLEAN, Value: y.Value.(int) == x.Value.(int)}
 	}
-	return &EvalValue{Type: VAR_TYPE_BOOLEAN, Value: y.Value.(int) == x.Value.(int)}
+	interpreter.threwError(fmt.Sprintf("expect string or number found '%v' and '%v'", y.Type.String(), x.Type.String()))
+	return &EvalValue{Type: VAR_TYPE_UNDEFINED}
 }
 func (interpreter *Interpreter) NotEqual(x *EvalValue, y *EvalValue) *EvalValue {
-	if !x.IsNumber() || !x.IsString() || !y.IsNumber() || !y.IsString() || !y.IsBoolean() || !y.IsBoolean() {
-		interpreter.threwError(fmt.Sprintf("expect string or number found '%v' and '%v'", y.Type.String(), x.Type.String()))
-	}
 	if x.IsString() && y.IsString() {
 		return &EvalValue{Type: VAR_TYPE_NUMBER, Value: y.Value.(string) != x.Value.(string)}
-	}
-	if x.IsBoolean() && y.IsBoolean() {
+	} else if x.IsBoolean() && y.IsBoolean() {
 		return &EvalValue{Type: VAR_TYPE_NUMBER, Value: y.Value.(bool) != x.Value.(bool)}
+	} else if x.IsNumber() && y.IsNumber() {
+		return &EvalValue{Type: VAR_TYPE_BOOLEAN, Value: y.Value.(int) != x.Value.(int)}
 	}
-	return &EvalValue{Type: VAR_TYPE_BOOLEAN, Value: y.Value.(int) != x.Value.(int)}
+	interpreter.threwError(fmt.Sprintf("expect string or number found '%v' and '%v'", y.Type.String(), x.Type.String()))
+	return &EvalValue{Type: VAR_TYPE_UNDEFINED}
 }

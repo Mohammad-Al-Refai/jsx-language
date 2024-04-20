@@ -49,6 +49,8 @@ const (
 	RETURN
 	BREAK
 	FOR
+	CONTINUE
+
 	// operators
 	EQUAL_EQUAL // ==
 	EQUAL       // =
@@ -58,7 +60,7 @@ const (
 
 )
 
-var keywords = map[string]Token{"Let": LET, "Set": SET, "If": IF, "Function": FUNCTION, "Print": PRINT, "Break": BREAK, "Return": RETURN, "For": FOR, "greater": GREATER_THAN, "smaller": SMALLER_THAN, "or": OR, "and": AND}
+var keywords = map[string]Token{"Let": LET, "Set": SET, "If": IF, "Function": FUNCTION, "Print": PRINT, "Break": BREAK, "Return": RETURN, "For": FOR, "Continue": CONTINUE, "greater": GREATER_THAN, "smaller": SMALLER_THAN, "or": OR, "and": AND}
 var operators = map[Token]string{ADD: "+", SUB: "-", MUL: "*", DIV: "/", EQUAL_EQUAL: "==", MOD: "%", NOT_EQUAL: "!=", OR: "or", AND: "and", GREATER_THAN: "greater", SMALLER_THAN: "smaller"}
 
 var tokens = []string{

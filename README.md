@@ -9,7 +9,7 @@ Have you ever wondered how programming languages actually work under the hood? D
 In this project, I set out to create a simple stack-oriented programming language and its syntax looks like JSX (because I love react js 😊) and all of that using the Go programming language with 0 dependencies. Inspired by my curiosity and desire to understand the inner workings of languages, this project served as an educational endeavor to demystify the magic behind programming languages, even it just an interpreted language not a compiled language but it worth it.
 
 ## Getting Started
-Download sogla from the releases then create a file and run:
+Download sogla from the [releases](https://github.com/Mohammad-Al-Refai/sogla/releases) then create a file and run:
 
 ```bash
 ./sogla [file path]
@@ -88,12 +88,38 @@ Logical operators:
 <App/>
 ```
 
+### Break
+
+```jsx
+<App>
+   <For var={"i"} from={0} to={10}>
+      <If condition={i 2 greater}>
+         <Print value={i}>
+         <Break/>
+      <If/>
+    <For/>
+<App/>
+```
+
+### Continue
+
+```jsx
+<App>
+   <For var={"i"} from={0} to={10}>
+      <If condition={i 2 ==}>
+         <Continue/>
+      <If/>
+      <Print value={i}>
+    <For/>
+<App/>
+```
+
 ## Function
 
 ```jsx
 <App>
    <Function id={"Sum"} args={"x","y"}>
-        <Return value={x y +}>
+        <Print value={x y +}>
     <Function/>
 <App/>
 ```
@@ -146,18 +172,8 @@ Logical operators:
 
 ```
 
-## Loop over array
+[Examples](https://github.com/Mohammad-Al-Refai/ht/tree/main/examples)
 
-```jsx
-<App>
-   <Let id={"data"} value={[1,2,"hello",false,423]}>
-   <For var={"i"} from={0} to={data array.length() 1 -}>
-      <Print value={i data array.at()}/>
-   <For/>
-<App/>
-```
-
-[More examples](https://github.com/Mohammad-Al-Refai/ht/tree/main/examples)
 ## Recurses I learnt from
 
 - [Making Programming Language in Python -- Porth](https://www.youtube.com/watch?v=8QP2fDBIxjM&list=PLpM-Dvs8t0VbMZA7wW9aR3EtBqe2kinu4)

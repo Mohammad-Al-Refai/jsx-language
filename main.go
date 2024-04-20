@@ -10,6 +10,7 @@ import (
 
 func main() {
 	file, err := RequestFile()
+	// file, err := os.Open("./examples/for-loop.sog")
 	if err != nil {
 		fmt.Println(err)
 		return
