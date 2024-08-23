@@ -1,4 +1,4 @@
-# Sogla
+# jsx-language
 
 ## Overview
 
@@ -9,10 +9,10 @@ Have you ever wondered how programming languages actually work under the hood? D
 In this project, I set out to create a simple stack-oriented programming language and its syntax looks like JSX (because I love react js 😊) and all of that using the Go programming language with 0 dependencies. Inspired by my curiosity and desire to understand the inner workings of languages, this project served as an educational endeavor to demystify the magic behind programming languages, even it just an interpreted language not a compiled language but it worth it.
 
 ## Getting Started
-Download sogla from the [releases](https://github.com/Mohammad-Al-Refai/sogla/releases) then create a file and run:
+Download jsx-language from the [releases](https://github.com/Mohammad-Al-Refai/jsx-language/releases) then create a file and run:
 
 ```bash
-./sogla [file path]
+./jsx-language [file path]
 ```
 
 ### How it works?
